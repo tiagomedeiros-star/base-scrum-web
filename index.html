@@ -17,8 +17,8 @@
         .nav-button.active { background-color: #2563eb; color: white; box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.3); } /* [cite: 8, 9] */
         .gantt-bar { height: 32px; border-radius: 6px; position: absolute; display: flex; align-items: center; padding: 0 12px; font-size: 11px; font-weight: 600; cursor: pointer; transition: transform 0.2s; } /* [cite: 10, 11] */
         .gantt-bar:hover { transform: scale(1.02); z-index: 10; } /* [cite: 12] */
-        .modal { transition: opacity 0.25s ease; } /* [cite: 13] */
-        body.modal-active { overflow: hidden; } /* [cite: 14] */
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow: hidden; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 h-screen overflow-hidden">
@@ -40,8 +40,7 @@
             <div class="p-4 bg-slate-50 border-b border-slate-100">
                 <label class="text-[10px] font-bold text-slate-400 px-1 mb-2 block uppercase tracking-widest">Selecionar Projeto</label>
                 <div class="relative group">
-                    <select id="project-selector" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm font-semibold text-slate-700 appearance-none cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none">
-                        </select>
+                    <select id="project-selector" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm font-semibold text-slate-700 appearance-none cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none"></select>
                     <i class="fas fa-chevron-down absolute right-4 top-4 text-slate-400 pointer-events-none transition-transform group-hover:translate-y-0.5"></i>
                 </div>
                 <button onclick="openModal('modal-new-project')" class="mt-3 w-full border-2 border-dashed border-slate-300 rounded-lg py-2 text-xs font-bold text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-all flex items-center justify-center gap-2">
@@ -135,11 +134,9 @@
 
                 <div id="view-gantt" class="tab-content">
                     <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col h-[700px]">
-                        <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-20">
-                            <div>
-                                <h3 class="text-xl font-black text-slate-800">Cronograma de Atividades</h3>
-                                <p class="text-xs text-slate-400 font-medium">Sincronizado com Firebase Cloud</p>
-                            </div>
+                        <div class="p-8 border-b border-slate-100 bg-white sticky top-0 z-20">
+                            <h3 class="text-xl font-black text-slate-800">Cronograma de Atividades</h3>
+                            <p class="text-xs text-slate-400 font-medium">Sincronizado com Firebase Cloud</p>
                         </div>
                         <div class="flex-1 overflow-auto custom-scrollbar">
                             <div class="inline-block min-w-full">
@@ -170,11 +167,37 @@
         </div>
     </div>
 
+    <div id="modal-new-story" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50" onclick="closeModal('modal-new-story')"></div>
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-3xl shadow-2xl z-50 p-8">
+            <h4 class="text-2xl font-black text-slate-800 mb-6">Nova História de Usuário</h4>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Título da História</label>
+                    <input type="text" id="new-story-title" class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Como usuário, quero...">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Tarefa Inicial</label>
+                        <input type="text" id="new-task-name" class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nome da tarefa">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Pontos (Fibonacci)</label>
+                        <input type="number" id="new-task-points" class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" value="5">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8">
+                    <button onclick="closeModal('modal-new-story')" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100">Cancelar</button>
+                    <button id="btn-save-story" class="px-6 py-2 rounded-xl text-sm font-bold bg-blue-600 text-white">Salvar no Backlog</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Sua Configuração Recebida
         const firebaseConfig = {
             apiKey: "AIzaSyCGQZgIkr2T7DJ880Z0R6Nqi_R4O5zabTw",
             authDomain: "base-scrum.firebaseapp.com",
@@ -187,17 +210,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Estado do App
         let projects = [];
         let activeProjectId = null;
         let backlogData = [];
 
-        // Expor funções para o HTML (Window) 
         window.switchView = (viewId) => {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
-            document.querySelector(`[data-view="${viewId}"]`).classList.add('active');
+            const btn = document.querySelector(`[data-view="${viewId}"]`);
+            if(btn) btn.classList.add('active');
             if (viewId === 'gantt') initGantt();
         };
 
@@ -211,9 +233,7 @@
             document.body.classList.remove('modal-active');
         };
 
-        // --- LÓGICA DE DADOS (FIRESTORE) ---
-
-        // Escuta projetos em tempo real [cite: 111]
+        // Escuta projetos [cite: 55]
         onSnapshot(collection(db, "projects"), (snapshot) => {
             projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             populateProjectSelector();
@@ -225,7 +245,7 @@
 
         function populateProjectSelector() {
             const selector = document.getElementById('project-selector');
-            selector.innerHTML = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            selector.innerHTML = projects.map(p => `<option value="${p.id}" ${p.id === activeProjectId ? 'selected' : ''}>${p.name}</option>`).join('');
             selector.onchange = (e) => {
                 activeProjectId = e.target.value;
                 loadProjectData();
@@ -235,11 +255,9 @@
         function loadProjectData() {
             const project = projects.find(p => p.id === activeProjectId);
             if (!project) return;
-
             document.getElementById('current-project-title').innerText = project.name;
             document.getElementById('project-tag').innerText = project.tag || 'Ativo';
-
-            // Escuta histórias deste projeto
+            
             const q = query(collection(db, "backlog"), where("projectId", "==", activeProjectId));
             onSnapshot(q, (snapshot) => {
                 backlogData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -248,7 +266,7 @@
             });
         }
 
-        // Criar Projeto
+        // SALVAR NOVO PROJETO
         document.getElementById('btn-save-project').onclick = async () => {
             const name = document.getElementById('new-project-name').value;
             if (!name) return;
@@ -257,7 +275,27 @@
             document.getElementById('new-project-name').value = '';
         };
 
-        // --- RENDERIZADORES [cite: 71-104] ---
+        // SALVAR NOVA HISTÓRIA (ADICIONADO)
+        document.getElementById('btn-save-story').onclick = async () => {
+            const title = document.getElementById('new-story-title').value;
+            const taskName = document.getElementById('new-task-name').value;
+            const points = parseInt(document.getElementById('new-task-points').value);
+
+            if (!title || !activeProjectId) return;
+
+            const newStory = {
+                projectId: activeProjectId,
+                title: title,
+                tasks: [
+                    { title: taskName || 'Tarefa Inicial', points: points || 0, status: 'todo', sprintId: 1, start: 2, duration: 4 }
+                ]
+            };
+
+            await addDoc(collection(db, "backlog"), newStory);
+            closeModal('modal-new-story');
+            document.getElementById('new-story-title').value = '';
+            document.getElementById('new-task-name').value = '';
+        };
 
         function renderBacklog() {
             const container = document.getElementById('backlog-stories-container');
@@ -311,7 +349,6 @@
             const headerRow = document.getElementById('gantt-days-row');
             const rowsContainer = document.getElementById('gantt-rows-container');
             headerRow.innerHTML = ''; rowsContainer.innerHTML = '';
-            
             const daysArr = Array.from({ length: 21 }, (_, i) => i + 1);
             daysArr.forEach(d => {
                 const div = document.createElement('div');
@@ -319,7 +356,6 @@
                 div.innerHTML = `<span class="text-xs font-bold text-slate-700">${d + 9}</span>`;
                 headerRow.appendChild(div);
             });
-
             backlogData.forEach(story => {
                 (story.tasks || []).forEach(task => {
                     const row = document.createElement('div');
@@ -331,7 +367,7 @@
                         <div class="flex flex-1 relative min-h-[64px]">
                             <div class="gantt-bar absolute top-1/2 -translate-y-1/2 bg-blue-600 text-white" 
                                  style="left: calc(${(task.start / 21) * 100}% + 4px); width: calc(${(task.duration / 21) * 100}% - 8px)">
-                                <span class="truncate ml-2">${task.points}pts</span>
+                                 <span class="truncate ml-2">${task.points}pts</span>
                             </div>
                         </div>
                     `;
