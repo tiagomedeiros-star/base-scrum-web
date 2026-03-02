@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProjectPro Sprint - Kanban Oficial</title>
+    <title>ProjectPro Sprint - Gestão Total</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -14,9 +14,6 @@
         .nav-button.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); }
         .kanban-column.drag-over { background-color: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; }
         .dragging { opacity: 0.5; transform: scale(0.95); }
-        .badge-p1 { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .badge-p2 { background-color: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
-        .badge-p3 { background-color: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 h-screen overflow-hidden">
@@ -56,13 +53,6 @@
             <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-4">
                     <h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Carregando...</h2>
-                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">Sprint Ativa</span>
-                </div>
-                <div class="flex items-center gap-3 text-right">
-                    <div>
-                        <p class="text-xs font-bold text-slate-600">Velocity Total</p>
-                        <p class="text-xs text-slate-400"><span id="total-points">0</span> pts planejados</p>
-                    </div>
                 </div>
             </header>
 
@@ -70,7 +60,7 @@
                 <div id="view-backlog" class="tab-content active space-y-6">
                     <div class="flex justify-between items-center">
                         <h3 class="text-2xl font-black text-slate-800">Histórias de Usuário</h3>
-                        <button onclick="openModal('modal-new-story')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-all">
+                        <button onclick="prepareStoryModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Nova História
                         </button>
                     </div>
@@ -80,24 +70,15 @@
                 <div id="view-sprint" class="tab-content h-full">
                     <div class="flex gap-6 h-full overflow-x-auto pb-4">
                         <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2 uppercase text-[10px] font-black text-slate-400 tracking-widest">
-                                <span>A Fazer</span>
-                                <span id="count-todo" class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">0</span>
-                            </div>
+                            <div class="mb-4 px-2 uppercase text-[10px] font-black text-slate-400">A Fazer</div>
                             <div id="col-todo" data-status="todo" class="kanban-column flex-1 bg-slate-200/50 rounded-2xl p-3 space-y-3 min-h-[400px]"></div>
                         </div>
                         <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2 uppercase text-[10px] font-black text-slate-400 tracking-widest">
-                                <span>Em Andamento</span>
-                                <span id="count-doing" class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0</span>
-                            </div>
+                            <div class="mb-4 px-2 uppercase text-[10px] font-black text-slate-400">Em Andamento</div>
                             <div id="col-doing" data-status="doing" class="kanban-column flex-1 bg-blue-50 rounded-2xl p-3 space-y-3 min-h-[400px]"></div>
                         </div>
                         <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2 uppercase text-[10px] font-black text-slate-400 tracking-widest">
-                                <span>Concluído</span>
-                                <span id="count-done" class="bg-green-100 text-green-600 px-2 py-0.5 rounded-full">0</span>
-                            </div>
+                            <div class="mb-4 px-2 uppercase text-[10px] font-black text-slate-400">Concluído</div>
                             <div id="col-done" data-status="done" class="kanban-column flex-1 bg-green-50 rounded-2xl p-3 space-y-3 min-h-[400px]"></div>
                         </div>
                     </div>
@@ -106,36 +87,41 @@
         </main>
     </div>
 
-    <div id="modal-add-task" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
-            <h4 class="text-xl font-black mb-1 text-slate-800">Nova Tarefa</h4>
-            <p id="modal-task-subtitle" class="text-[10px] text-slate-400 uppercase font-bold mb-6">Para: ...</p>
-            <input type="hidden" id="target-story-id">
-            
+    <div id="modal-story" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl">
+            <h4 id="story-modal-title" class="text-2xl font-black mb-6">Nova História</h4>
+            <input type="hidden" id="edit-story-id">
             <div class="space-y-4">
-                <input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Título">
-                <textarea id="task-desc" rows="2" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Descrição"></textarea>
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="date" id="task-start" class="bg-slate-100 p-2 rounded-lg text-sm">
-                    <input type="date" id="task-end" class="bg-slate-100 p-2 rounded-lg text-sm">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="task-sprint" class="bg-slate-100 p-3 rounded-xl text-sm" placeholder="Sprint">
-                    <input type="number" id="task-points" class="bg-slate-100 p-3 rounded-xl text-sm" placeholder="Pontos" value="3">
-                </div>
-                <input type="text" id="task-owner" class="w-full bg-slate-100 p-3 rounded-xl text-sm" placeholder="Responsável">
+                <input type="text" id="story-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Título">
+                <textarea id="story-desc" rows="3" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Descrição"></textarea>
             </div>
-
             <div class="flex justify-end gap-3 mt-8">
-                <button onclick="closeModal('modal-add-task')" class="font-bold text-slate-400">Cancelar</button>
-                <button id="btn-confirm-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">Adicionar</button>
+                <button onclick="closeModal('modal-story')" class="font-bold text-slate-400">Cancelar</button>
+                <button id="btn-save-story" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-task" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
+            <h4 id="task-modal-title" class="text-xl font-black mb-6 text-slate-800">Nova Tarefa</h4>
+            <input type="hidden" id="task-story-id">
+            <input type="hidden" id="task-edit-index">
+            <div class="space-y-4">
+                <input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="O que fazer?">
+                <input type="text" id="task-owner" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Responsável">
+                <input type="number" id="task-points" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Pontos" value="3">
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="closeModal('modal-task')" class="font-bold text-slate-400">Cancelar</button>
+                <button id="btn-save-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">Salvar Tarefa</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGQZgIkr2T7DJ880Z0R6Nqi_R4O5zabTw",
@@ -161,6 +147,7 @@
             document.querySelector(`[data-view="${v}"]`).classList.add('active');
         };
 
+        // --- GESTÃO DE PROJETOS ---
         onSnapshot(collection(db, "projects"), (snap) => {
             const projects = snap.docs.map(d => ({id: d.id, ...d.data()}));
             const sel = document.getElementById('project-selector');
@@ -173,103 +160,150 @@
             const q = query(collection(db, "backlog"), where("projectId", "==", activeProjectId));
             onSnapshot(q, (snap) => {
                 storiesData = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                renderKanban();
                 renderBacklog();
+                renderKanban();
             });
         }
 
-        window.openAddTaskModal = (storyId, storyTitle) => {
-            document.getElementById('target-story-id').value = storyId;
-            document.getElementById('modal-task-subtitle').innerText = `Para: ${storyTitle}`;
-            openModal('modal-add-task');
+        // --- CRUD HISTÓRIAS ---
+        window.prepareStoryModal = (storyId = null) => {
+            const isEdit = !!storyId;
+            document.getElementById('story-modal-title').innerText = isEdit ? "Editar História" : "Nova História";
+            document.getElementById('edit-story-id').value = storyId || "";
+            
+            if(isEdit) {
+                const story = storiesData.find(s => s.id === storyId);
+                document.getElementById('story-title').value = story.title;
+                document.getElementById('story-desc').value = story.description || "";
+            } else {
+                document.getElementById('story-title').value = "";
+                document.getElementById('story-desc').value = "";
+            }
+            openModal('modal-story');
         };
 
-        document.getElementById('btn-confirm-task').onclick = async () => {
-            const sId = document.getElementById('target-story-id').value;
-            const newTask = {
-                id: Date.now().toString(),
-                title: document.getElementById('task-title').value,
-                desc: document.getElementById('task-desc').value,
-                start: document.getElementById('task-start').value,
-                end: document.getElementById('task-end').value,
-                sprint: document.getElementById('task-sprint').value || 'Backlog',
-                points: parseInt(document.getElementById('task-points').value) || 0,
-                owner: document.getElementById('task-owner').value || 'S/D',
-                status: 'todo'
+        document.getElementById('btn-save-story').onclick = async () => {
+            const id = document.getElementById('edit-story-id').value;
+            const data = {
+                title: document.getElementById('story-title').value,
+                description: document.getElementById('story-desc').value,
+                projectId: activeProjectId
             };
-            await updateDoc(doc(db, "backlog", sId), { tasks: arrayUnion(newTask) });
-            closeModal('modal-add-task');
+
+            if(id) {
+                await updateDoc(doc(db, "backlog", id), data);
+            } else {
+                await addDoc(collection(db, "backlog"), { ...data, tasks: [] });
+            }
+            closeModal('modal-story');
         };
 
-        function renderKanban() {
-            const cols = { todo: document.getElementById('col-todo'), doing: document.getElementById('col-doing'), done: document.getElementById('col-done') };
-            Object.values(cols).forEach(c => c.innerHTML = '');
-            let counts = { todo: 0, doing: 0, done: 0 };
+        window.deleteStory = async (id) => {
+            if(confirm("Excluir esta história e todas as suas tarefas?")) {
+                await deleteDoc(doc(db, "backlog", id));
+            }
+        };
 
-            storiesData.forEach(story => {
-                (story.tasks || []).forEach((task, index) => {
-                    counts[task.status]++;
-                    const card = document.createElement('div');
-                    card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md cursor-grab active:cursor-grabbing space-y-3";
-                    card.draggable = true;
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <span class="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">${task.sprint}</span>
-                            <span class="text-slate-400 text-[9px] font-bold">${task.points} pts</span>
-                        </div>
-                        <h5 class="text-sm font-bold text-slate-800 leading-tight">${task.title}</h5>
-                        <p class="text-[10px] text-slate-500 line-clamp-2">${task.desc || ''}</p>
-                        <div class="grid grid-cols-2 gap-2 py-2 border-y border-slate-50 text-[9px] text-slate-400 font-bold uppercase">
-                            <div>Início: <span class="text-slate-600">${task.start || '-'}</span></div>
-                            <div>Fim: <span class="text-slate-600">${task.end || '-'}</span></div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <div class="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center text-[8px] font-bold">${task.owner.charAt(0)}</div>
-                            <span class="text-[10px] text-slate-400 font-bold">${task.owner}</span>
-                        </div>
-                    `;
-                    card.ondragstart = (e) => {
-                        e.dataTransfer.setData("storyId", story.id);
-                        e.dataTransfer.setData("taskIndex", index);
-                        card.classList.add('dragging');
-                    };
-                    card.ondragend = () => card.classList.remove('dragging');
-                    cols[task.status].appendChild(card);
-                });
-            });
-            document.getElementById('count-todo').innerText = counts.todo;
-            document.getElementById('count-doing').innerText = counts.doing;
-            document.getElementById('count-done').innerText = counts.done;
-        }
+        // --- CRUD TAREFAS ---
+        window.prepareTaskModal = (storyId, taskIndex = null) => {
+            const isEdit = taskIndex !== null;
+            document.getElementById('task-modal-title').innerText = isEdit ? "Editar Tarefa" : "Nova Tarefa";
+            document.getElementById('task-story-id').value = storyId;
+            document.getElementById('task-edit-index').value = isEdit ? taskIndex : "";
 
+            if(isEdit) {
+                const task = storiesData.find(s => s.id === storyId).tasks[taskIndex];
+                document.getElementById('task-title').value = task.title;
+                document.getElementById('task-owner').value = task.owner;
+                document.getElementById('task-points').value = task.points;
+            } else {
+                document.getElementById('task-title').value = "";
+                document.getElementById('task-owner').value = "";
+                document.getElementById('task-points').value = "3";
+            }
+            openModal('modal-task');
+        };
+
+        document.getElementById('btn-save-task').onclick = async () => {
+            const sId = document.getElementById('task-story-id').value;
+            const idx = document.getElementById('task-edit-index').value;
+            const story = storiesData.find(s => s.id === sId);
+            const newTasks = [...(story.tasks || [])];
+
+            const taskData = {
+                title: document.getElementById('task-title').value,
+                owner: document.getElementById('task-owner').value,
+                points: parseInt(document.getElementById('task-points').value) || 0,
+                status: idx !== "" ? newTasks[idx].status : 'todo',
+                id: idx !== "" ? newTasks[idx].id : Date.now().toString()
+            };
+
+            if(idx !== "") newTasks[idx] = taskData;
+            else newTasks.push(taskData);
+
+            await updateDoc(doc(db, "backlog", sId), { tasks: newTasks });
+            closeModal('modal-task');
+        };
+
+        window.deleteTask = async (storyId, index) => {
+            if(confirm("Excluir esta tarefa?")) {
+                const story = storiesData.find(s => s.id === storyId);
+                const newTasks = story.tasks.filter((_, i) => i !== index);
+                await updateDoc(doc(db, "backlog", storyId), { tasks: newTasks });
+            }
+        };
+
+        // --- RENDERIZAÇÃO ---
         function renderBacklog() {
-            const container = document.getElementById('backlog-container');
-            container.innerHTML = storiesData.map(story => `
+            document.getElementById('backlog-container').innerHTML = storiesData.map(story => `
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 flex justify-between items-center shadow-sm">
                     <div>
                         <h4 class="font-bold text-slate-800">${story.title}</h4>
                         <p class="text-xs text-slate-500">${story.description || 'Sem descrição'}</p>
                     </div>
-                    <button onclick="openAddTaskModal('${story.id}', '${story.title}')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold">Add Task</button>
+                    <div class="flex gap-2">
+                        <button onclick="prepareTaskModal('${story.id}')" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold">Add Task</button>
+                        <button onclick="prepareStoryModal('${story.id}')" class="text-slate-400 hover:text-blue-600 p-2"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteStory('${story.id}')" class="text-slate-400 hover:text-red-600 p-2"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
 
+        function renderKanban() {
+            const cols = { todo: document.getElementById('col-todo'), doing: document.getElementById('col-doing'), done: document.getElementById('col-done') };
+            Object.values(cols).forEach(c => c.innerHTML = '');
+            
+            storiesData.forEach(story => {
+                (story.tasks || []).forEach((task, index) => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 relative group cursor-grab active:cursor-grabbing";
+                    card.draggable = true;
+                    card.innerHTML = `
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button onclick="prepareTaskModal('${story.id}', ${index})" class="text-blue-500 text-[10px]"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteTask('${story.id}', ${index})" class="text-red-500 text-[10px]"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <h5 class="text-sm font-bold text-slate-800 pr-8">${task.title}</h5>
+                        <p class="text-[10px] text-slate-400 mt-2 font-bold uppercase">${task.owner} | ${task.points} pts</p>
+                    `;
+                    card.ondragstart = (e) => { e.dataTransfer.setData("sId", story.id); e.dataTransfer.setData("tIdx", index); };
+                    if(cols[task.status]) cols[task.status].appendChild(card);
+                });
+            });
+        }
+
+        // --- DRAG & DROP ---
         document.querySelectorAll('.kanban-column').forEach(col => {
-            col.ondragover = (e) => { e.preventDefault(); col.classList.add('drag-over'); };
-            col.ondragleave = () => col.classList.remove('drag-over');
+            col.ondragover = (e) => e.preventDefault();
             col.ondrop = async (e) => {
-                e.preventDefault();
-                col.classList.remove('drag-over');
-                const sId = e.dataTransfer.getData("storyId");
-                const tIdx = parseInt(e.dataTransfer.getData("taskIndex"));
+                const sId = e.dataTransfer.getData("sId");
+                const tIdx = parseInt(e.dataTransfer.getData("tIdx"));
                 const newStatus = col.getAttribute('data-status');
                 const story = storiesData.find(s => s.id === sId);
-                if(story) {
-                    const newTasks = [...story.tasks];
-                    newTasks[tIdx].status = newStatus;
-                    await updateDoc(doc(db, "backlog", sId), { tasks: newTasks });
-                }
+                const newTasks = [...story.tasks];
+                newTasks[tIdx].status = newStatus;
+                await updateDoc(doc(db, "backlog", sId), { tasks: newTasks });
             };
         });
     </script>
