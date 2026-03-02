@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProjectPro Sprint - Sprints & Stories</title>
+    <title>ProjectPro Sprint - Kanban Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -12,10 +12,8 @@
         .tab-content { display: none; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
         .tab-content.active { display: block; opacity: 1; transform: translateY(0); }
         .nav-button.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); }
-        .modal { transition: opacity 0.25s ease; }
         .kanban-column.drag-over { background-color: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; }
         .dragging { opacity: 0.5; transform: scale(0.95); }
-        /* Badges de Prioridade */
         .badge-p1 { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
         .badge-p2 { background-color: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
         .badge-p3 { background-color: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
@@ -58,18 +56,17 @@
             <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-4">
                     <h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Carregando...</h2>
-                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">Sprint 1</span>
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">Sprint Ativa</span>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
-                        <p class="text-xs font-bold text-slate-600">Velocity</p>
+                <div class="flex items-center gap-3 text-right">
+                    <div>
+                        <p class="text-xs font-bold text-slate-600">Velocity Total</p>
                         <p class="text-xs text-slate-400"><span id="total-points">0</span> pts planejados</p>
                     </div>
                 </div>
             </header>
 
-            <section class="flex-1 p-8 overflow-y-auto bg-slate-50 custom-scrollbar">
-                
+            <section class="flex-1 p-8 overflow-y-auto bg-slate-50">
                 <div id="view-backlog" class="tab-content active space-y-6">
                     <div class="flex justify-between items-center">
                         <h3 class="text-2xl font-black text-slate-800">Histórias de Usuário</h3>
@@ -83,27 +80,25 @@
                 <div id="view-sprint" class="tab-content h-full">
                     <div class="flex gap-6 h-full overflow-x-auto pb-4">
                         <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">A Fazer</span>
-                                <span class="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-todo">0</span>
+                            <div class="flex justify-between items-center mb-4 px-2 uppercase text-[10px] font-black text-slate-400 tracking-widest">
+                                <span>A Fazer</span>
+                                <span id="count-todo" class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">0</span>
                             </div>
-                            <div id="col-todo" data-status="todo" class="kanban-column flex-1 bg-slate-200/50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div>
+                            <div id="col-todo" data-status="todo" class="kanban-column flex-1 bg-slate-200/50 rounded-2xl p-3 space-y-3 min-h-[400px]"></div>
                         </div>
-
                         <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Em Andamento</span>
-                                <span class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-doing">0</span>
+                            <div class="flex justify-between items-center mb-4 px-2 uppercase text-[10px] font-black text-slate-400 tracking-widest">
+                                <span>Em Andamento</span>
+                                <span id="count-doing" class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0</span>
                             </div>
-                            <div id="col-doing" data-status="doing" class="kanban-column flex-1 bg-blue-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div>
+                            <div id="col-doing" data-status="doing" class="kanban-column flex-1 bg-blue-50 rounded-2xl p-3 space-y-3 min-h-[400px]"></div>
                         </div>
-
                         <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Concluído</span>
-                                <span class="bg-green-100 text-green-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-done">0</span>
+                            <div class="flex justify-between items-center mb-4 px-2 uppercase text-[10px] font-black text-slate-400 tracking-widest">
+                                <span>Concluído</span>
+                                <span id="count-done" class="bg-green-100 text-green-600 px-2 py-0.5 rounded-full">0</span>
                             </div>
-                            <div id="col-done" data-status="done" class="kanban-column flex-1 bg-green-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div>
+                            <div id="col-done" data-status="done" class="kanban-column flex-1 bg-green-50 rounded-2xl p-3 space-y-3 min-h-[400px]"></div>
                         </div>
                     </div>
                 </div>
@@ -111,67 +106,29 @@
         </main>
     </div>
 
-    <div id="modal-new-story" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl transform scale-100 transition-all">
-            <h4 class="text-2xl font-black mb-6 text-slate-800">Criar História de Usuário</h4>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Título da História</label>
-                    <input type="text" id="story-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Como usuário, quero logar no sistema...">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Prioridade</label>
-                        <select id="story-priority" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                            <option value="P1">P1 - Alta (Crítica)</option>
-                            <option value="P2" selected>P2 - Média (Normal)</option>
-                            <option value="P3">P3 - Baixa (Desejável)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Estimativa Total (Auto)</label>
-                        <div class="p-3 bg-slate-50 rounded-xl text-slate-400 text-sm italic">Calculado pelas tasks</div>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Descrição</label>
-                    <textarea id="story-desc" rows="3" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Detalhes e critérios de aceitação..."></textarea>
-                </div>
-            </div>
-            <div class="flex justify-end gap-3 mt-8">
-                <button onclick="closeModal('modal-new-story')" class="font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
-                <button id="btn-create-story" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200">Criar História</button>
-            </div>
-        </div>
-    </div>
-
     <div id="modal-add-task" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
-            <h4 class="text-xl font-black mb-2 text-slate-800">Adicionar Tarefa</h4>
-            <p class="text-xs text-slate-400 mb-6 uppercase font-bold" id="modal-task-subtitle">Para a história: ...</p>
+            <h4 class="text-xl font-black mb-1 text-slate-800">Nova Tarefa</h4>
+            <p id="modal-task-subtitle" class="text-[10px] text-slate-400 uppercase font-bold mb-6">Para: ...</p>
             <input type="hidden" id="target-story-id">
             
             <div class="space-y-4">
-                <input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="O que precisa ser feito?">
+                <input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Título">
+                <textarea id="task-desc" rows="2" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Descrição"></textarea>
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="task-points" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Pontos" value="3">
-                    <input type="text" id="task-owner" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Responsável">
+                    <input type="date" id="task-start" class="bg-slate-100 p-2 rounded-lg text-sm">
+                    <input type="date" id="task-end" class="bg-slate-100 p-2 rounded-lg text-sm">
                 </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="task-sprint" class="bg-slate-100 p-3 rounded-xl text-sm" placeholder="Sprint">
+                    <input type="number" id="task-points" class="bg-slate-100 p-3 rounded-xl text-sm" placeholder="Pontos" value="3">
+                </div>
+                <input type="text" id="task-owner" class="w-full bg-slate-100 p-3 rounded-xl text-sm" placeholder="Responsável">
             </div>
-            <div class="flex justify-end gap-3 mt-8">
-                <button onclick="closeModal('modal-add-task')" class="font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
-                <button id="btn-confirm-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-200">Adicionar Tarefa</button>
-            </div>
-        </div>
-    </div>
 
-    <div id="modal-new-project" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60">
-        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
-            <h4 class="text-2xl font-black mb-6">Novo Projeto</h4>
-            <input type="text" id="new-project-name" class="w-full bg-slate-100 p-4 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do Projeto">
             <div class="flex justify-end gap-3 mt-8">
-                <button onclick="closeModal('modal-new-project')" class="font-bold text-slate-500">Cancelar</button>
-                <button id="btn-save-project" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Criar</button>
+                <button onclick="closeModal('modal-add-task')" class="font-bold text-slate-400">Cancelar</button>
+                <button id="btn-confirm-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">Adicionar</button>
             </div>
         </div>
     </div>
@@ -191,11 +148,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
         let activeProjectId = null;
         let storiesData = [];
 
-        // --- UI UTILS ---
         window.openModal = (id) => document.getElementById(id).classList.remove('opacity-0', 'pointer-events-none');
         window.closeModal = (id) => document.getElementById(id).classList.add('opacity-0', 'pointer-events-none');
         
@@ -206,207 +161,100 @@
             document.querySelector(`[data-view="${v}"]`).classList.add('active');
         };
 
-        // --- PROJETOS ---
         onSnapshot(collection(db, "projects"), (snap) => {
             const projects = snap.docs.map(d => ({id: d.id, ...d.data()}));
             const sel = document.getElementById('project-selector');
             sel.innerHTML = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-            
-            if(!activeProjectId && projects.length) { 
-                activeProjectId = projects[0].id; 
-                loadStories(); 
-            }
-            sel.onchange = (e) => { 
-                activeProjectId = e.target.value; 
-                loadStories(); 
-            };
+            if(!activeProjectId && projects.length) { activeProjectId = projects[0].id; loadStories(); }
+            sel.onchange = (e) => { activeProjectId = e.target.value; loadStories(); };
         });
 
-        document.getElementById('btn-save-project').onclick = async () => {
-            const name = document.getElementById('new-project-name').value;
-            if(name) await addDoc(collection(db, "projects"), { name, createdAt: new Date() });
-            closeModal('modal-new-project');
-        };
-
-        // --- CARREGAR DADOS ---
         function loadStories() {
             const q = query(collection(db, "backlog"), where("projectId", "==", activeProjectId));
             onSnapshot(q, (snap) => {
                 storiesData = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                
-                // Atualizar Nome do Projeto
-                const projName = document.getElementById('project-selector').options[document.getElementById('project-selector').selectedIndex]?.text;
-                document.getElementById('current-project-title').innerText = projName || "Projeto";
-                
-                renderBacklog();
                 renderKanban();
-                calculateVelocity();
+                renderBacklog();
             });
         }
 
-        function calculateVelocity() {
-            let total = 0;
-            storiesData.forEach(s => {
-                (s.tasks || []).forEach(t => total += (parseInt(t.points) || 0));
-            });
-            document.getElementById('total-points').innerText = total;
-        }
-
-        // --- CRIAR HISTÓRIA (PARENT) ---
-        document.getElementById('btn-create-story').onclick = async () => {
-            const title = document.getElementById('story-title').value;
-            const priority = document.getElementById('story-priority').value;
-            const desc = document.getElementById('story-desc').value;
-
-            if(title && activeProjectId) {
-                await addDoc(collection(db, "backlog"), {
-                    projectId: activeProjectId,
-                    title: title,
-                    priority: priority, // P1, P2, P3
-                    description: desc,
-                    tasks: [] // Array vazio para receber tasks depois
-                });
-                closeModal('modal-new-story');
-                document.getElementById('story-title').value = '';
-                document.getElementById('story-desc').value = '';
-            }
-        };
-
-        // --- ADICIONAR TAREFA (CHILD) ---
         window.openAddTaskModal = (storyId, storyTitle) => {
             document.getElementById('target-story-id').value = storyId;
-            document.getElementById('modal-task-subtitle').innerText = `Para a história: ${storyTitle}`;
+            document.getElementById('modal-task-subtitle').innerText = `Para: ${storyTitle}`;
             openModal('modal-add-task');
         };
 
         document.getElementById('btn-confirm-task').onclick = async () => {
-            const storyId = document.getElementById('target-story-id').value;
-            const title = document.getElementById('task-title').value;
-            const points = document.getElementById('task-points').value;
-            const owner = document.getElementById('task-owner').value;
-
-            if(storyId && title) {
-                const newTask = {
-                    id: Date.now().toString(), // ID simples para controle local
-                    title: title,
-                    points: parseInt(points) || 0,
-                    owner: owner || 'Sem dono',
-                    status: 'todo'
-                };
-
-                const storyRef = doc(db, "backlog", storyId);
-                await updateDoc(storyRef, {
-                    tasks: arrayUnion(newTask)
-                });
-                
-                closeModal('modal-add-task');
-                document.getElementById('task-title').value = '';
-            }
+            const sId = document.getElementById('target-story-id').value;
+            const newTask = {
+                id: Date.now().toString(),
+                title: document.getElementById('task-title').value,
+                desc: document.getElementById('task-desc').value,
+                start: document.getElementById('task-start').value,
+                end: document.getElementById('task-end').value,
+                sprint: document.getElementById('task-sprint').value || 'Backlog',
+                points: parseInt(document.getElementById('task-points').value) || 0,
+                owner: document.getElementById('task-owner').value || 'S/D',
+                status: 'todo'
+            };
+            await updateDoc(doc(db, "backlog", sId), { tasks: arrayUnion(newTask) });
+            closeModal('modal-add-task');
         };
 
-        window.deleteStory = async (id) => {
-            if(confirm("Tem certeza que deseja apagar essa História e todas as tarefas?")) {
-                await deleteDoc(doc(db, "backlog", id));
-            }
-        };
-
-        // --- RENDER BACKLOG ---
-        function renderBacklog() {
-            const container = document.getElementById('backlog-container');
-            container.innerHTML = storiesData.map(story => {
-                const pColor = story.priority === 'P1' ? 'badge-p1' : (story.priority === 'P2' ? 'badge-p2' : 'badge-p3');
-                const pLabel = story.priority === 'P1' ? 'Alta' : (story.priority === 'P2' ? 'Média' : 'Baixa');
-                
-                // Soma pontos da história
-                const storyPoints = (story.tasks || []).reduce((acc, t) => acc + (t.points || 0), 0);
-
-                return `
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group">
-                    <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded ${pColor}">${story.priority}</span>
-                                <span class="text-[10px] font-bold text-slate-400">${storyPoints} pts</span>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-bold text-slate-800 leading-tight mb-1">${story.title}</h4>
-                                <p class="text-xs text-slate-500 line-clamp-1">${story.description || 'Sem descrição'}</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="openAddTaskModal('${story.id}', '${story.title}')" class="bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-all">
-                                <i class="fas fa-plus mr-1"></i> Add Task
-                            </button>
-                            <button onclick="deleteStory('${story.id}')" class="text-slate-300 hover:text-red-500 px-2 transition-colors"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 bg-white space-y-2">
-                        ${(story.tasks && story.tasks.length > 0) ? story.tasks.map(t => `
-                            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all bg-slate-50 group-task">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 rounded-full ${t.status === 'done' ? 'bg-green-500' : (t.status === 'doing' ? 'bg-blue-500' : 'bg-slate-300')}"></div>
-                                    <span class="text-sm font-semibold text-slate-700">${t.title}</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase">${t.owner}</span>
-                                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${t.points} pts</span>
-                                </div>
-                            </div>
-                        `).join('') : '<p class="text-center text-xs text-slate-300 italic py-2">Nenhuma tarefa criada ainda.</p>'}
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        // --- RENDER KANBAN (Tasks) ---
         function renderKanban() {
             const cols = { todo: document.getElementById('col-todo'), doing: document.getElementById('col-doing'), done: document.getElementById('col-done') };
             Object.values(cols).forEach(c => c.innerHTML = '');
             let counts = { todo: 0, doing: 0, done: 0 };
 
             storiesData.forEach(story => {
-                const pColor = story.priority === 'P1' ? 'text-red-500 bg-red-50 border-red-100' : (story.priority === 'P2' ? 'text-orange-500 bg-orange-50 border-orange-100' : 'text-blue-500 bg-blue-50 border-blue-100');
-
                 (story.tasks || []).forEach((task, index) => {
-                    if(cols[task.status]) {
-                        counts[task.status]++;
-                        
-                        const card = document.createElement('div');
-                        card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md cursor-grab active:cursor-grabbing transition-all relative group";
-                        card.draggable = true;
-                        
-                        card.innerHTML = `
-                            <div class="mb-2 flex justify-between items-start">
-                                <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded border ${pColor}">${story.priority}</span>
-                                <span class="bg-slate-100 text-slate-500 text-[9px] font-bold px-1.5 py-0.5 rounded">${task.points} pts</span>
-                            </div>
-                            <h5 class="text-sm font-bold text-slate-800 mb-3 leading-snug">${task.title}</h5>
-                            <div class="flex items-center gap-1.5 pt-2 border-t border-slate-50">
-                                <i class="fas fa-tag text-[9px] text-slate-300"></i>
-                                <span class="text-[9px] font-bold text-slate-400 truncate max-w-[150px]">${story.title}</span>
-                            </div>
-                        `;
-
-                        // Drag Events
-                        card.ondragstart = (e) => {
-                            e.dataTransfer.setData("storyId", story.id);
-                            e.dataTransfer.setData("taskIndex", index);
-                            card.classList.add('dragging');
-                        };
-                        card.ondragend = () => card.classList.remove('dragging');
-
-                        cols[task.status].appendChild(card);
-                    }
+                    counts[task.status]++;
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md cursor-grab active:cursor-grabbing space-y-3";
+                    card.draggable = true;
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <span class="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">${task.sprint}</span>
+                            <span class="text-slate-400 text-[9px] font-bold">${task.points} pts</span>
+                        </div>
+                        <h5 class="text-sm font-bold text-slate-800 leading-tight">${task.title}</h5>
+                        <p class="text-[10px] text-slate-500 line-clamp-2">${task.desc || ''}</p>
+                        <div class="grid grid-cols-2 gap-2 py-2 border-y border-slate-50 text-[9px] text-slate-400 font-bold uppercase">
+                            <div>Início: <span class="text-slate-600">${task.start || '-'}</span></div>
+                            <div>Fim: <span class="text-slate-600">${task.end || '-'}</span></div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center text-[8px] font-bold">${task.owner.charAt(0)}</div>
+                            <span class="text-[10px] text-slate-400 font-bold">${task.owner}</span>
+                        </div>
+                    `;
+                    card.ondragstart = (e) => {
+                        e.dataTransfer.setData("storyId", story.id);
+                        e.dataTransfer.setData("taskIndex", index);
+                        card.classList.add('dragging');
+                    };
+                    card.ondragend = () => card.classList.remove('dragging');
+                    cols[task.status].appendChild(card);
                 });
             });
-
             document.getElementById('count-todo').innerText = counts.todo;
             document.getElementById('count-doing').innerText = counts.doing;
             document.getElementById('count-done').innerText = counts.done;
         }
 
-        // --- DRAG AND DROP LOGIC ---
+        function renderBacklog() {
+            const container = document.getElementById('backlog-container');
+            container.innerHTML = storiesData.map(story => `
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 flex justify-between items-center shadow-sm">
+                    <div>
+                        <h4 class="font-bold text-slate-800">${story.title}</h4>
+                        <p class="text-xs text-slate-500">${story.description || 'Sem descrição'}</p>
+                    </div>
+                    <button onclick="openAddTaskModal('${story.id}', '${story.title}')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold">Add Task</button>
+                </div>
+            `).join('');
+        }
+
         document.querySelectorAll('.kanban-column').forEach(col => {
             col.ondragover = (e) => { e.preventDefault(); col.classList.add('drag-over'); };
             col.ondragleave = () => col.classList.remove('drag-over');
@@ -416,18 +264,14 @@
                 const sId = e.dataTransfer.getData("storyId");
                 const tIdx = parseInt(e.dataTransfer.getData("taskIndex"));
                 const newStatus = col.getAttribute('data-status');
-
-                if(sId && !isNaN(tIdx)) {
-                    const story = storiesData.find(s => s.id === sId);
-                    if(story && story.tasks[tIdx].status !== newStatus) {
-                        const newTasks = [...story.tasks];
-                        newTasks[tIdx].status = newStatus;
-                        await updateDoc(doc(db, "backlog", sId), { tasks: newTasks });
-                    }
+                const story = storiesData.find(s => s.id === sId);
+                if(story) {
+                    const newTasks = [...story.tasks];
+                    newTasks[tIdx].status = newStatus;
+                    await updateDoc(doc(db, "backlog", sId), { tasks: newTasks });
                 }
             };
         });
-
     </script>
 </body>
 </html>
