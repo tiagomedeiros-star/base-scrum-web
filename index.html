@@ -8,16 +8,19 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; [cite_start]} [cite: 2]
-        .tab-content { display: none; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; [cite_start]} [cite: 3]
-        .tab-content.active { display: block; opacity: 1; transform: translateY(0); [cite_start]} [cite: 4]
-        .nav-button.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); [cite_start]} [cite: 5]
-        .modal { transition: opacity 0.25s ease; [cite_start]} [cite: 6]
-        .kanban-column.drag-over { background-color: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; [cite_start]} [cite: 7]
-        .dragging { opacity: 0.5; transform: scale(0.95); [cite_start]} [cite: 8]
-        .badge-p1 { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; [cite_start]} [cite: 9]
-        .badge-p2 { background-color: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; [cite_start]} [cite: 10]
-        .badge-p3 { background-color: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; [cite_start]} [cite: 11]
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+        .tab-content.active { display: block; opacity: 1; transform: translateY(0); }
+        .nav-button.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); }
+        .modal { transition: opacity 0.25s ease; z-index: 100; }
+        .kanban-column.drag-over { background-color: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; }
+        .dragging { opacity: 0.5; transform: scale(0.95); }
+        .badge-p1 { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .badge-p2 { background-color: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
+        .badge-p3 { background-color: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 h-screen overflow-hidden">
@@ -26,7 +29,7 @@
         <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 shadow-sm z-30">
             <div class="p-6 border-b border-slate-100">
                 <div class="flex items-center gap-3">
-                    [cite_start]<div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-bolt"></i></div> [cite: 12]
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-bolt"></i></div>
                     <div>
                         <h1 class="font-black text-lg text-blue-900">SprintMaster</h1>
                         <p class="text-[9px] text-blue-500 font-extrabold uppercase">Agile Suite</p>
@@ -37,7 +40,7 @@
             <div class="p-4 bg-slate-50 border-b border-slate-100">
                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Projeto Ativo</label>
                 <div class="relative mb-3">
-                    [cite_start]<select id="project-selector" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold outline-none appearance-none"></select> [cite: 14]
+                    <select id="project-selector" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold outline-none appearance-none cursor-pointer"></select>
                     <i class="fas fa-chevron-down absolute right-3 top-3 text-slate-400 text-xs pointer-events-none"></i>
                 </div>
                 
@@ -50,29 +53,29 @@
                     </button>
                 </div>
 
-                [cite_start]<button onclick="openModal('modal-new-project')" class="w-full border-2 border-dashed border-slate-300 rounded-lg py-2 text-xs font-bold text-slate-500 hover:text-blue-600 hover:border-blue-400 transition-all">+ Novo Projeto</button> [cite: 14]
+                <button onclick="openModal('modal-new-project')" class="w-full border-2 border-dashed border-slate-300 rounded-lg py-2 text-xs font-bold text-slate-500 hover:text-blue-600 hover:border-blue-400 transition-all">+ Novo Projeto</button>
             </div>
 
             <nav class="flex-1 p-4 space-y-2">
                 <button onclick="switchView('backlog')" class="nav-button w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 active" data-view="backlog">
                     <i class="fas fa-list-ul w-5"></i> <span class="text-sm font-semibold">Backlog & Histórias</span>
-                [cite_start]</button> [cite: 15]
+                </button>
                 <button onclick="switchView('sprint')" class="nav-button w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600" data-view="sprint">
                     <i class="fas fa-columns w-5"></i> <span class="text-sm font-semibold">Sprint Board</span>
-                [cite_start]</button> [cite: 16]
+                </button>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-4">
-                    [cite_start]<h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Carregando...</h2> [cite: 17]
-                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">Sprint Ativa</span>
+                    <h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Carregando...</h2>
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">Projeto Ativo</span>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <p class="text-xs font-bold text-slate-600">Velocity</p>
-                        [cite_start]<p class="text-xs text-slate-400"><span id="total-points">0</span> pts planejados</p> [cite: 18]
+                        <p class="text-xs text-slate-400"><span id="total-points">0</span> pts totais</p>
                     </div>
                 </div>
             </header>
@@ -80,38 +83,36 @@
             <section class="flex-1 p-8 overflow-y-auto bg-slate-50 custom-scrollbar">
                 <div id="view-backlog" class="tab-content active space-y-6">
                     <div class="flex justify-between items-center">
-                        [cite_start]<h3 class="text-2xl font-black text-slate-800">Histórias de Usuário</h3> [cite: 20]
+                        <h3 class="text-2xl font-black text-slate-800">Histórias de Usuário</h3>
                         <button onclick="openModal('modal-new-story')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-all">
-                            [cite_start]<i class="fas fa-plus mr-2"></i> Nova História [cite: 21]
+                            <i class="fas fa-plus mr-2"></i> Nova História
                         </button>
                     </div>
                     <div id="backlog-container" class="space-y-6"></div>
                 </div>
 
-                [cite_start]<div id="view-sprint" class="tab-content h-full"> [cite: 22]
+                <div id="view-sprint" class="tab-content h-full">
                     <div class="flex gap-6 h-full overflow-x-auto pb-4">
                         <div class="min-w-[320px] flex-1 flex flex-col">
                             <div class="flex justify-between items-center mb-4 px-2">
-                                [cite_start]<span class="text-xs font-black text-slate-400 uppercase tracking-widest">A Fazer</span> [cite: 23]
-                                [cite_start]<span class="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-todo">0</span> [cite: 23]
+                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">A Fazer</span>
+                                <span class="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-todo">0</span>
                             </div>
-                            [cite_start]<div id="col-todo" data-status="todo" class="kanban-column flex-1 bg-slate-200/50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div> [cite: 24]
+                            <div id="col-todo" data-status="todo" class="kanban-column flex-1 bg-slate-200/50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div>
                         </div>
-
                         <div class="min-w-[320px] flex-1 flex flex-col">
                             <div class="flex justify-between items-center mb-4 px-2">
-                                [cite_start]<span class="text-xs font-black text-slate-400 uppercase tracking-widest">Em Andamento</span> [cite: 25]
-                                [cite_start]<span class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-doing">0</span> [cite: 26]
+                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Em Andamento</span>
+                                <span class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-doing">0</span>
                             </div>
-                            [cite_start]<div id="col-doing" data-status="doing" class="kanban-column flex-1 bg-blue-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div> [cite: 26]
+                            <div id="col-doing" data-status="doing" class="kanban-column flex-1 bg-blue-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div>
                         </div>
-
                         <div class="min-w-[320px] flex-1 flex flex-col">
                             <div class="flex justify-between items-center mb-4 px-2">
-                                [cite_start]<span class="text-xs font-black text-slate-400 uppercase tracking-widest">Concluído</span> [cite: 28]
-                                [cite_start]<span class="bg-green-100 text-green-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-done">0</span> [cite: 28]
+                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Concluído</span>
+                                <span class="bg-green-100 text-green-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-done">0</span>
                             </div>
-                            [cite_start]<div id="col-done" data-status="done" class="kanban-column flex-1 bg-green-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div> [cite: 29]
+                            <div id="col-done" data-status="done" class="kanban-column flex-1 bg-green-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent transition-colors"></div>
                         </div>
                     </div>
                 </div>
@@ -119,10 +120,10 @@
         </main>
     </div>
 
-    [cite_start]<div id="modal-new-project" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm"> [cite: 40]
+    <div id="modal-new-project" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
             <h4 class="text-2xl font-black mb-6">Novo Projeto</h4>
-            [cite_start]<input type="text" id="new-project-name" class="w-full bg-slate-100 p-4 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do Projeto"> [cite: 41]
+            <input type="text" id="new-project-name" class="w-full bg-slate-100 p-4 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do Projeto">
             <div class="flex justify-end gap-3 mt-8">
                 <button onclick="closeModal('modal-new-project')" class="font-bold text-slate-500">Cancelar</button>
                 <button id="btn-save-project" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700">Criar Projeto</button>
@@ -130,7 +131,7 @@
         </div>
     </div>
 
-    <div id="modal-edit-project" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm">
+    <div id="modal-edit-project" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
             <h4 class="text-2xl font-black mb-6">Editar Projeto</h4>
             <input type="text" id="edit-project-name" class="w-full bg-slate-100 p-4 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do Projeto">
@@ -141,57 +142,57 @@
         </div>
     </div>
 
-    [cite_start]<div id="modal-add-task" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm"> [cite: 37]
-        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
-            [cite_start]<h4 class="text-xl font-black mb-2 text-slate-800">Adicionar Tarefa</h4> [cite: 37]
-            [cite_start]<p class="text-xs text-slate-400 mb-6 uppercase font-bold" id="modal-task-subtitle">Para a história: ...</p> [cite: 37]
-            [cite_start]<input type="hidden" id="target-story-id"> [cite: 37]
+    <div id="modal-new-story" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl">
+            <h4 class="text-2xl font-black mb-6 text-slate-800">Criar História de Usuário</h4>
             <div class="space-y-4">
-                [cite_start]<input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="O que precisa ser feito?"> [cite: 38]
+                <input type="text" id="story-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Título da História">
+                <select id="story-priority" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                    <option value="P1">P1 - Alta</option>
+                    <option value="P2" selected>P2 - Média</option>
+                    <option value="P3">P3 - Baixa</option>
+                </select>
+                <textarea id="story-desc" rows="3" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Descrição e critérios de aceitação..."></textarea>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="closeModal('modal-new-story')" class="font-bold text-slate-400">Cancelar</button>
+                <button id="btn-create-story" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Criar História</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-add-task" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
+            <h4 class="text-xl font-black mb-2 text-slate-800">Adicionar Tarefa</h4>
+            <p class="text-xs text-slate-400 mb-6 uppercase font-bold" id="modal-task-subtitle">Para a história: ...</p>
+            <input type="hidden" id="target-story-id">
+            <div class="space-y-4">
+                <input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="O que precisa ser feito?">
                 <div class="grid grid-cols-2 gap-4">
-                    [cite_start]<input type="number" id="task-points" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Pontos" value="3"> [cite: 38]
-                    [cite_start]<input type="text" id="task-owner" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Responsável"> [cite: 39]
+                    <input type="number" id="task-points" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Pontos" value="3">
+                    <input type="text" id="task-owner" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Responsável">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Início</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Data Início</label>
                         <input type="date" id="task-start" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-xs">
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Término</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Data Término</label>
                         <input type="date" id="task-end" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-xs">
                     </div>
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-8">
-                [cite_start]<button onclick="closeModal('modal-add-task')" class="font-bold text-slate-400 hover:text-slate-600">Cancelar</button> [cite: 39]
-                [cite_start]<button id="btn-confirm-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-700 shadow-lg">Adicionar Tarefa</button> [cite: 40]
-            </div>
-        </div>
-    </div>
-
-    [cite_start]<div id="modal-new-story" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-50 bg-slate-900/60 backdrop-blur-sm"> [cite: 30]
-        <div class="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl">
-            [cite_start]<h4 class="text-2xl font-black mb-6 text-slate-800">Criar História de Usuário</h4> [cite: 30]
-            <div class="space-y-4">
-                [cite_start]<input type="text" id="story-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Título da História"> [cite: 31]
-                [cite_start]<select id="story-priority" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"> [cite: 32]
-                    <option value="P1">P1 - Alta</option>
-                    <option value="P2" selected>P2 - Média</option>
-                    <option value="P3">P3 - Baixa</option>
-                [cite_start]</select> [cite: 33]
-                [cite_start]<textarea id="story-desc" rows="3" class="w-full bg-slate-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Descrição..."></textarea> [cite: 35]
-            </div>
-            <div class="flex justify-end gap-3 mt-8">
-                [cite_start]<button onclick="closeModal('modal-new-story')" class="font-bold text-slate-400">Cancelar</button> [cite: 36]
-                [cite_start]<button id="btn-create-story" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Criar</button> [cite: 36]
+                <button onclick="closeModal('modal-add-task')" class="font-bold text-slate-400">Cancelar</button>
+                <button id="btn-confirm-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-700">Confirmar</button>
             </div>
         </div>
     </div>
 
     <script type="module">
-        [cite_start]import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"; [cite: 42]
-        [cite_start]import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, arrayUnion, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"; [cite: 42]
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, arrayUnion, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGQZgIkr2T7DJ880Z0R6Nqi_R4O5zabTw",
@@ -200,30 +201,30 @@
             storageBucket: "base-scrum.firebasestorage.app",
             messagingSenderId: "862384072053",
             appId: "1:862384072053:web:922d943b7b95b065381f3c"
-        [cite_start]}; [cite: 43]
-
-        [cite_start]const app = initializeApp(firebaseConfig); [cite: 44]
-        [cite_start]const db = getFirestore(app); [cite: 44]
-
-        [cite_start]let activeProjectId = null; [cite: 44]
-        [cite_start]let storiesData = []; [cite: 44]
-        let unsubscribeStories = null;
-
-        [cite_start]window.openModal = (id) => document.getElementById(id).classList.remove('opacity-0', 'pointer-events-none'); [cite: 45]
-        [cite_start]window.closeModal = (id) => document.getElementById(id).classList.add('opacity-0', 'pointer-events-none'); [cite: 46]
-        
-        [cite_start]window.switchView = (v) => { [cite: 46]
-            [cite_start]document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); [cite: 46]
-            [cite_start]document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active')); [cite: 47]
-            [cite_start]document.getElementById('view-'+v).classList.add('active'); [cite: 47]
-            [cite_start]document.querySelector(`[data-view="${v}"]`).classList.add('active'); [cite: 47]
         };
 
-        // --- PROJETOS (CRUD) ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let activeProjectId = null;
+        let storiesData = [];
+        let unsubscribeStories = null;
+
+        window.openModal = (id) => document.getElementById(id).classList.remove('opacity-0', 'pointer-events-none');
+        window.closeModal = (id) => document.getElementById(id).classList.add('opacity-0', 'pointer-events-none');
+        
+        window.switchView = (v) => {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-'+v).classList.add('active');
+            document.querySelector(`[data-view="${v}"]`).classList.add('active');
+        };
+
+        // --- LÓGICA DE PROJETOS ---
         onSnapshot(query(collection(db, "projects"), orderBy("createdAt", "desc")), (snap) => {
             const projects = snap.docs.map(d => ({id: d.id, ...d.data()}));
             const sel = document.getElementById('project-selector');
-            [cite_start]sel.innerHTML = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join(''); [cite: 47]
+            sel.innerHTML = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
             
             if(projects.length > 0) {
                 if(!activeProjectId || !projects.find(p => p.id === activeProjectId)) {
@@ -243,25 +244,24 @@
             }
 
             sel.onchange = (e) => { 
-                [cite_start]activeProjectId = e.target.value; [cite: 48]
-                [cite_start]loadStories(); [cite: 49]
+                activeProjectId = e.target.value; 
+                loadStories(); 
             };
         });
 
         document.getElementById('btn-save-project').onclick = async () => {
-            [cite_start]const name = document.getElementById('new-project-name').value; [cite: 50]
-            [cite_start]if(name) { [cite: 51]
-                [cite_start]await addDoc(collection(db, "projects"), { name, createdAt: new Date() }); [cite: 51]
+            const name = document.getElementById('new-project-name').value;
+            if(name) {
+                await addDoc(collection(db, "projects"), { name, createdAt: new Date() });
                 document.getElementById('new-project-name').value = '';
-                [cite_start]closeModal('modal-new-project'); [cite: 51]
+                closeModal('modal-new-project');
             }
         };
 
         window.openEditProjectModal = () => {
             if(!activeProjectId) return;
             const sel = document.getElementById('project-selector');
-            const currentName = sel.options[sel.selectedIndex].text;
-            document.getElementById('edit-project-name').value = currentName;
+            document.getElementById('edit-project-name').value = sel.options[sel.selectedIndex].text;
             openModal('modal-edit-project');
         };
 
@@ -275,174 +275,159 @@
 
         window.deleteProject = async () => {
             if(!activeProjectId) return;
-            if(confirm("Excluir este projeto?")) {
+            if(confirm("Deseja apagar este projeto?")) {
                 await deleteDoc(doc(db, "projects", activeProjectId));
                 activeProjectId = null;
             }
         };
 
-        // --- CARREGAR HISTÓRIAS ---
+        // --- LÓGICA DE HISTÓRIAS E TAREFAS ---
         function loadStories() {
             if(unsubscribeStories) unsubscribeStories();
             if(!activeProjectId) return;
 
-            [cite_start]const q = query(collection(db, "backlog"), where("projectId", "==", activeProjectId)); [cite: 52]
-            [cite_start]unsubscribeStories = onSnapshot(q, (snap) => { [cite: 53]
-                [cite_start]storiesData = snap.docs.map(d => ({id: d.id, ...d.data()})); [cite: 53]
+            const q = query(collection(db, "backlog"), where("projectId", "==", activeProjectId));
+            unsubscribeStories = onSnapshot(q, (snap) => {
+                storiesData = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 const sel = document.getElementById('project-selector');
-                [cite_start]const projName = sel.options[sel.selectedIndex]?.text; [cite: 53]
-                document.getElementById('current-project-title').innerText = projName || [cite_start]"Projeto"; [cite: 53]
-                [cite_start]renderBacklog(); [cite: 54]
-                [cite_start]renderKanban(); [cite: 54]
-                [cite_start]calculateVelocity(); [cite: 54]
+                document.getElementById('current-project-title').innerText = sel.options[sel.selectedIndex]?.text || "Projeto";
+                renderBacklog();
+                renderKanban();
+                calculateTotalPoints();
             });
         }
 
-        function calculateVelocity() {
-            [cite_start]let total = 0; [cite: 55]
-            [cite_start]storiesData.forEach(s => { [cite: 56]
-                (s.tasks || [])[cite_start].forEach(t => total += (parseInt(t.points) || 0)); [cite: 56]
-            });
-            [cite_start]document.getElementById('total-points').innerText = total; [cite: 57]
+        function calculateTotalPoints() {
+            let total = 0;
+            storiesData.forEach(s => (s.tasks || []).forEach(t => total += (parseInt(t.points) || 0)));
+            document.getElementById('total-points').innerText = total;
         }
 
-        // --- HISTÓRIAS E TAREFAS ---
         document.getElementById('btn-create-story').onclick = async () => {
-            [cite_start]const title = document.getElementById('story-title').value; [cite: 57]
+            const title = document.getElementById('story-title').value;
             if(title && activeProjectId) {
                 await addDoc(collection(db, "backlog"), {
                     projectId: activeProjectId,
                     title: title,
-                    [cite_start]priority: document.getElementById('story-priority').value, [cite: 58]
-                    [cite_start]description: document.getElementById('story-desc').value, [cite: 59]
-                    [cite_start]tasks: [] [cite: 59]
+                    priority: document.getElementById('story-priority').value,
+                    description: document.getElementById('story-desc').value,
+                    tasks: []
                 });
-                [cite_start]closeModal('modal-new-story'); [cite: 60]
+                closeModal('modal-new-story');
                 document.getElementById('story-title').value = '';
+                document.getElementById('story-desc').value = '';
             }
         };
 
         window.openAddTaskModal = (storyId, storyTitle) => {
-            [cite_start]document.getElementById('target-story-id').value = storyId; [cite: 61]
-            [cite_start]document.getElementById('modal-task-subtitle').innerText = `Para: ${storyTitle}`; [cite: 62]
-            [cite_start]openModal('modal-add-task'); [cite: 62]
+            document.getElementById('target-story-id').value = storyId;
+            document.getElementById('modal-task-subtitle').innerText = `Para: ${storyTitle}`;
+            openModal('modal-add-task');
         };
 
         document.getElementById('btn-confirm-task').onclick = async () => {
-            [cite_start]const storyId = document.getElementById('target-story-id').value; [cite: 62]
-            [cite_start]const title = document.getElementById('task-title').value; [cite: 63]
-            const start = document.getElementById('task-start').value;
-            const end = document.getElementById('task-end').value;
-
+            const storyId = document.getElementById('target-story-id').value;
+            const title = document.getElementById('task-title').value;
             if(storyId && title) {
                 const newTask = {
-                    [cite_start]id: Date.now().toString(), [cite: 64]
-                    [cite_start]title: title, [cite: 64]
-                    points: parseInt(document.getElementById('task-points').value) || [cite_start]0, [cite: 64]
-                    owner: document.getElementById('task-owner').value || [cite_start]'Sem dono', [cite: 65, 66]
-                    startDate: start || 'N/A',
-                    endDate: end || 'N/A',
-                    [cite_start]status: 'todo' [cite: 66]
+                    id: Date.now().toString(),
+                    title: title,
+                    points: parseInt(document.getElementById('task-points').value) || 0,
+                    owner: document.getElementById('task-owner').value || 'N/A',
+                    startDate: document.getElementById('task-start').value || 'Sem data',
+                    endDate: document.getElementById('task-end').value || 'Sem data',
+                    status: 'todo'
                 };
-                await updateDoc(doc(db, "backlog", storyId), {
-                    [cite_start]tasks: arrayUnion(newTask) [cite: 67]
-                });
-                [cite_start]closeModal('modal-add-task'); [cite: 68]
+                await updateDoc(doc(db, "backlog", storyId), { tasks: arrayUnion(newTask) });
+                closeModal('modal-add-task');
                 document.getElementById('task-title').value = '';
             }
         };
 
-        [cite_start]window.deleteStory = async (id) => { [cite: 69]
-            [cite_start]if(confirm("Apagar história?")) await deleteDoc(doc(db, "backlog", id)); [cite: 69]
+        window.deleteStory = async (id) => {
+            if(confirm("Apagar história?")) await deleteDoc(doc(db, "backlog", id));
         };
 
-        // --- RENDERS ---
+        // --- RENDERIZAÇÃO ---
         function renderBacklog() {
-            [cite_start]const container = document.getElementById('backlog-container'); [cite: 70]
+            const container = document.getElementById('backlog-container');
             if(storiesData.length === 0) {
-                container.innerHTML = `<div class="text-center py-20 text-slate-400">Nenhuma história.</div>`;
+                container.innerHTML = `<div class="text-center py-20 text-slate-400 italic">Sem histórias cadastradas.</div>`;
                 return;
             }
-            [cite_start]container.innerHTML = storiesData.map(story => { [cite: 71]
-                const pColor = story.priority === 'P1' ? [cite_start]'badge-p1' : (story.priority === 'P2' ? 'badge-p2' : 'badge-p3'); [cite: 71]
-                [cite_start]const points = (story.tasks || []).reduce((acc, t) => acc + (t.points || 0), 0); [cite: 72]
+            container.innerHTML = storiesData.map(story => {
+                const pClass = story.priority === 'P1' ? 'badge-p1' : (story.priority === 'P2' ? 'badge-p2' : 'badge-p3');
                 return `
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-                    <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
-                        <div class="flex gap-4">
-                            [cite_start]<span class="text-[10px] font-black uppercase px-2 py-0.5 rounded ${pColor}">${story.priority}</span> [cite: 73]
-                            <div>
-                                [cite_start]<h4 class="text-lg font-bold text-slate-800">${story.title}</h4> [cite: 75]
-                                <p class="text-xs text-slate-400">${points} pts totais</p>
-                            </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+                    <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div class="flex gap-3 items-center">
+                            <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${pClass}">${story.priority}</span>
+                            <h4 class="font-bold text-slate-800">${story.title}</h4>
                         </div>
                         <div class="flex gap-2">
-                            [cite_start]<button onclick="openAddTaskModal('${story.id}', '${story.title}')" class="bg-white border border-slate-200 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold">Add Task</button> [cite: 77]
-                            [cite_start]<button onclick="deleteStory('${story.id}')" class="text-slate-300 hover:text-red-500 px-2"><i class="fas fa-trash"></i></button> [cite: 78]
+                            <button onclick="openAddTaskModal('${story.id}', '${story.title}')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-100">Add Tarefa</button>
+                            <button onclick="deleteStory('${story.id}')" class="text-slate-300 hover:text-red-500 transition-colors px-2"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <div class="p-4 space-y-2">
                         ${(story.tasks || []).map(t => `
-                            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50">
+                            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-semibold text-slate-700">${t.title}</span>
-                                    <span class="text-[9px] text-slate-400 uppercase font-bold">📅 ${t.startDate} até ${t.endDate}</span>
+                                    <span class="text-[9px] text-slate-400 font-bold uppercase">📅 ${t.startDate} - ${t.endDate}</span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    [cite_start]<span class="text-[10px] font-bold text-slate-400">${t.owner}</span> [cite: 82]
-                                    [cite_start]<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${t.points} pts</span> [cite: 83]
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">${t.owner}</span>
+                                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${t.points} pts</span>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
-                </div>
-            [cite_start]`}).join(''); [cite: 84]
+                </div>`;
+            }).join('');
         }
 
         function renderKanban() {
-            [cite_start]const cols = { todo: document.getElementById('col-todo'), doing: document.getElementById('col-doing'), done: document.getElementById('col-done') }; [cite: 85]
-            [cite_start]Object.values(cols).forEach(c => c.innerHTML = ''); [cite: 86]
-            [cite_start]let counts = { todo: 0, doing: 0, done: 0 }; [cite: 86]
+            const cols = { todo: document.getElementById('col-todo'), doing: document.getElementById('col-doing'), done: document.getElementById('col-done') };
+            Object.values(cols).forEach(c => c.innerHTML = '');
+            let counts = { todo: 0, doing: 0, done: 0 };
 
-            [cite_start]storiesData.forEach(story => { [cite: 87]
-                (story.tasks || [])[cite_start].forEach((task, index) => { [cite: 87]
-                    [cite_start]if(cols[task.status]) { [cite: 87]
-                        [cite_start]counts[task.status]++; [cite: 88]
-                        [cite_start]const card = document.createElement('div'); [cite: 88]
-                        [cite_start]card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing"; [cite: 88]
-                        [cite_start]card.draggable = true; [cite: 89]
+            storiesData.forEach(story => {
+                (story.tasks || []).forEach((task, idx) => {
+                    if(cols[task.status]) {
+                        counts[task.status]++;
+                        const card = document.createElement('div');
+                        card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing mb-3";
+                        card.draggable = true;
                         card.innerHTML = `
-                            [cite_start]<h5 class="text-sm font-bold text-slate-800 mb-2">${task.title}</h5> [cite: 91]
+                            <h5 class="text-sm font-bold text-slate-800 mb-2">${task.title}</h5>
                             <div class="flex justify-between items-center text-[9px] font-bold text-slate-400">
                                 <span>👤 ${task.owner}</span>
                                 <span>🏁 ${task.endDate}</span>
-                            </div>
-                        `;
-                        [cite_start]card.ondragstart = (e) => { [cite: 93]
-                            [cite_start]e.dataTransfer.setData("storyId", story.id); [cite: 93]
-                            [cite_start]e.dataTransfer.setData("taskIndex", index); [cite: 94]
-                        };
-                        [cite_start]cols[task.status].appendChild(card); [cite: 94]
+                            </div>`;
+                        card.ondragstart = (e) => { e.dataTransfer.setData("storyId", story.id); e.dataTransfer.setData("taskIdx", idx); };
+                        cols[task.status].appendChild(card);
                     }
                 });
             });
-            [cite_start]document.getElementById('count-todo').innerText = counts.todo; [cite: 96]
-            [cite_start]document.getElementById('count-doing').innerText = counts.doing; [cite: 96]
-            [cite_start]document.getElementById('count-done').innerText = counts.done; [cite: 96]
+            document.getElementById('count-todo').innerText = counts.todo;
+            document.getElementById('count-doing').innerText = counts.doing;
+            document.getElementById('count-done').innerText = counts.done;
         }
 
-        // Drag & Drop
-        [cite_start]document.querySelectorAll('.kanban-column').forEach(col => { [cite: 96]
-            [cite_start]col.ondragover = (e) => e.preventDefault(); [cite: 96]
-            [cite_start]col.ondrop = async (e) => { [cite: 96]
-                [cite_start]const sId = e.dataTransfer.getData("storyId"); [cite: 97]
-                [cite_start]const tIdx = parseInt(e.dataTransfer.getData("taskIndex")); [cite: 97]
-                [cite_start]const newStatus = col.getAttribute('data-status'); [cite: 97]
-                [cite_start]const story = storiesData.find(s => s.id === sId); [cite: 98]
-                [cite_start]if(story) { [cite: 98]
-                    [cite_start]const newTasks = [...story.tasks]; [cite: 98]
-                    [cite_start]newTasks[tIdx].status = newStatus; [cite: 98]
-                    [cite_start]await updateDoc(doc(db, "backlog", sId), { tasks: newTasks }); [cite: 99]
+        document.querySelectorAll('.kanban-column').forEach(col => {
+            col.ondragover = (e) => { e.preventDefault(); col.classList.add('drag-over'); };
+            col.ondragleave = () => col.classList.remove('drag-over');
+            col.ondrop = async (e) => {
+                col.classList.remove('drag-over');
+                const sId = e.dataTransfer.getData("storyId");
+                const tIdx = parseInt(e.dataTransfer.getData("taskIdx"));
+                const newStatus = col.getAttribute('data-status');
+                const story = storiesData.find(s => s.id === sId);
+                if(story) {
+                    const tasks = [...story.tasks];
+                    tasks[tIdx].status = newStatus;
+                    await updateDoc(doc(db, "backlog", sId), { tasks });
                 }
             };
         });
