@@ -368,6 +368,7 @@
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
             document.getElementById('gantt-today-label').innerText = `Hoje: 04 Mar 2026`;
             let header = `<div class="gantt-header-wrapper"><div class="gantt-header-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px)"><div class="gantt-month-cell">PROJETO</div><div class="gantt-month-cell" style="grid-column: 2 / -1">${monthNames[min.getMonth()].toUpperCase()} / ${monthNames[(min.getMonth()+1)%12].toUpperCase()} 2026</div></div><div class="gantt-header-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px)"><div class="gantt-day-cell"></div>${days.map(d => `<div class="gantt-day-cell">${['dom','seg','ter','qua','qui','sex','sáb'][d.getDay()]}<br><b>${d.getDate()}</b></div>`).join('')}</div></div>`;
+            
             let body = projectsList.map(proj => {
                 let tasks = allBacklogData.filter(s => s.projectId === proj.id).flatMap(s => (s.tasks || []).map(t => ({...t})));
                 if(owner !== 'todos') tasks = tasks.filter(t => t.owner === owner);
@@ -376,9 +377,16 @@
                 return `<div class="gantt-project-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px); min-height: ${h}px"><div class="gantt-label-col">${proj.name}</div>${days.map(() => `<div class="border-r border-slate-100"></div>`).join('')}<div class="gantt-bars-area">${tasks.map((t, i) => {
                     const start = new Date(t.startDate + 'T00:00:00'), end = new Date(t.endDate + 'T00:00:00'), startIdx = days.findIndex(d => d.toDateString() === start.toDateString()), dur = Math.ceil((end - start) / 86400000) + 1;
                     if(startIdx === -1) return '';
-                    return `<div class="gantt-bar shadow-sm" style="left:${startIdx * zoom + 5}px; width:${dur * zoom - 10}px; top:${15 + (i * 32)}px; background:${proj.name.includes("Produção") ? "#dcfce7" : "#dbeafe"}; color:${proj.name.includes("Produção") ? "#166534" : "#1e40af"}">${zoom > 45 ? t.title : ''}</div>`;
+                    
+                    // Lógica de Cores Dinâmicas conforme o Status
+                    let bgColor = '#f1f5f9', txtColor = '#475569'; // Padrão: A Fazer (Cinza)
+                    if(t.status === 'doing') { bgColor = '#dbeafe'; txtColor = '#2563eb'; } // Fazendo (Azul)
+                    else if(t.status === 'done') { bgColor = '#dcfce7'; txtColor = '#16a34a'; } // OK (Verde)
+
+                    return `<div class="gantt-bar shadow-sm" style="left:${startIdx * zoom + 5}px; width:${dur * zoom - 10}px; top:${15 + (i * 32)}px; background:${bgColor}; color:${txtColor}">${zoom > 45 ? t.title : ''}</div>`;
                 }).join('')}</div></div>`;
             }).join('');
+            
             const tIdx = days.findIndex(d => d.toDateString() === today.toDateString());
             container.innerHTML = header + body + (tIdx !== -1 ? `<div class="today-line" style="left: ${lblW + (tIdx * zoom)}px"></div>` : '');
         };
