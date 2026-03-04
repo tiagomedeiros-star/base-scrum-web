@@ -13,115 +13,117 @@
         .tab-content.active { display: block; opacity: 1; transform: translateY(0); }
         .nav-button.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); }
         .modal { transition: opacity 0.25s ease; z-index: 100; }
-        .kanban-column.drag-over { background-color: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; }
-        .dragging { opacity: 0.5; transform: scale(0.95); }
-        
-        /* Badges de Prioridade */
-        .badge-p1 { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .badge-p2 { background-color: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
-        .badge-p3 { background-color: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
 
-        /* Estilos de Status Solicitados */
-        .status-todo { background-color: #f1f5f9; color: #475569; } /* Cinza */
-        .status-doing { background-color: #dbeafe; color: #2563eb; } /* Azul */
-        .status-done { background-color: #dcfce7; color: #16a34a; } /* Verde */
+        .gantt-wrapper { border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; overflow: hidden; position: relative; }
+        .gantt-grid { display: grid; position: relative; transition: all 0.2s ease; }
+        .gantt-header-top { background: #f8fafc; border-bottom: 1px solid #e2e8f0; grid-column: 1 / -1; display: flex; align-items: center; height: 35px; font-size: 11px; font-weight: 700; color: #64748b; padding-left: 10px; }
+        .gantt-header-day { border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 0; text-align: center; background: #fff; font-size: 9px; font-weight: 600; color: #94a3b8; }
+        .gantt-project-row { display: contents; }
+        .gantt-project-label { grid-column: 1; padding: 15px; border-bottom: 1px solid #f1f5f9; background: #fff; position: sticky; left: 0; z-index: 20; font-size: 11px; font-weight: 700; color: #334155; border-right: 1px solid #e2e8f0; display: flex; align-items: center; }
+        .gantt-cell { border-right: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; min-height: 80px; }
+        .gantt-bar { position: absolute; height: 22px; border-radius: 4px; font-size: 8px; font-weight: 700; display: flex; align-items: center; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 10; border: 1px solid rgba(0,0,0,0.05); }
+        .today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #3b82f6; z-index: 30; pointer-events: none; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 h-screen overflow-hidden">
 
     <div class="flex h-full">
-        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 shadow-sm z-30">
+        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 shadow-sm">
             <div class="p-6 border-b border-slate-100">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-bolt"></i></div>
                     <div>
-                        <h1 class="font-black text-lg text-blue-900">Planejamento DEV - SCM</h1>
-                        <p class="text-[9px] text-blue-500 font-extrabold uppercase">Sprints</p>
+                        <h1 class="font-black text-lg text-blue-900">Planejamento DEV</h1>
+                        <p class="text-[9px] text-blue-500 font-extrabold uppercase">Gerenciamento Ágil</p>
                     </div>
                 </div>
             </div>
 
             <div class="p-4 bg-slate-50 border-b border-slate-100">
                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Projeto Ativo</label>
-                <div class="relative mb-3">
-                    <select id="project-selector" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold outline-none appearance-none cursor-pointer"></select>
-                    <i class="fas fa-chevron-down absolute right-3 top-3 text-slate-400 text-xs pointer-events-none"></i>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-2 mb-3">
-                    <button onclick="openEditProjectModal()" class="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 py-2 rounded-lg text-[10px] font-bold hover:bg-slate-100 transition-all">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button onclick="deleteProject()" class="flex items-center justify-center gap-2 bg-red-50 border border-red-100 text-red-600 py-2 rounded-lg text-[10px] font-bold hover:bg-red-100 transition-all">
-                        <i class="fas fa-trash-alt"></i> Excluir
-                    </button>
-                </div>
-
-                <button onclick="openModal('modal-new-project')" class="w-full border-2 border-dashed border-slate-300 rounded-lg py-2 text-xs font-bold text-slate-500 hover:text-blue-600 hover:border-blue-400 transition-all">+ Novo Projeto</button>
+                <select id="project-selector" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold outline-none cursor-pointer mb-3"></select>
+                <button onclick="openModal('modal-new-project')" class="w-full border-2 border-dashed border-slate-300 rounded-lg py-2 text-xs font-bold text-slate-500 hover:text-blue-600 transition-all">+ Novo Projeto</button>
             </div>
 
             <nav class="flex-1 p-4 space-y-2">
                 <button onclick="switchView('backlog')" class="nav-button w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 active" data-view="backlog">
-                    <i class="fas fa-list-ul w-5"></i> <span class="text-sm font-semibold">Backlog & Histórias</span>
+                    <i class="fas fa-list-ul w-5"></i> <span class="text-sm font-semibold">Backlog</span>
                 </button>
                 <button onclick="switchView('sprint')" class="nav-button w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600" data-view="sprint">
-                    <i class="fas fa-columns w-5"></i> <span class="text-sm font-semibold">Sprint Board</span>
+                    <i class="fas fa-columns w-5"></i> <span class="text-sm font-semibold">Kanban</span>
+                </button>
+                <button onclick="switchView('gantt')" class="nav-button w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600" data-view="gantt">
+                    <i class="fas fa-chart-gantt w-5"></i> <span class="text-sm font-semibold">Gantt</span>
                 </button>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
-                <div class="flex items-center gap-4">
-                    <h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Carregando...</h2>
-                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">Projeto Ativo</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
-                        <p class="text-xs font-bold text-slate-600">Pontuação Total</p>
-                        <p class="text-xs text-slate-400"><span id="total-points">0</span> pts</p>
-                    </div>
+                <h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Carregando...</h2>
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-tighter">
+                    <span id="total-points">0</span> PTS TOTAL
                 </div>
             </header>
 
-            <section class="flex-1 p-8 overflow-y-auto bg-slate-50 custom-scrollbar">
+            <section class="flex-1 p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
                 <div id="view-backlog" class="tab-content active space-y-6">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-2xl font-black text-slate-800">Histórias de Usuário</h3>
-                        <button onclick="openModal('modal-new-story')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">
-                            <i class="fas fa-plus mr-2"></i> Nova História
-                        </button>
+                        <h3 class="text-2xl font-black text-slate-800">Histórias</h3>
+                        <button onclick="openModal('modal-new-story')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition-all">+ Nova História</button>
                     </div>
-                    <div id="backlog-container" class="space-y-6"></div>
+                    <div id="backlog-container" class="grid gap-4"></div>
                 </div>
 
                 <div id="view-sprint" class="tab-content h-full">
-                    <div class="flex gap-6 h-full overflow-x-auto pb-4">
-                        <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">A Fazer</span>
-                                <span class="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-todo">0</span>
+                    <div class="flex gap-4 h-full overflow-x-auto pb-4">
+                        <div class="min-w-[300px] flex-1 flex flex-col">
+                            <div class="flex justify-between items-center mb-3 px-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <span>A Fazer</span>
+                                <span id="count-todo" class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">0</span>
                             </div>
-                            <div id="col-todo" data-status="todo" class="kanban-column flex-1 bg-slate-200/50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent"></div>
+                            <div id="col-todo" data-status="todo" class="kanban-column flex-1 bg-slate-200/40 rounded-2xl p-3 space-y-3 min-h-[200px]"></div>
                         </div>
-                        <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Em Andamento</span>
-                                <span class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-doing">0</span>
+                        <div class="min-w-[300px] flex-1 flex flex-col">
+                            <div class="flex justify-between items-center mb-3 px-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <span>Fazendo</span>
+                                <span id="count-doing" class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">0</span>
                             </div>
-                            <div id="col-doing" data-status="doing" class="kanban-column flex-1 bg-blue-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent"></div>
+                            <div id="col-doing" data-status="doing" class="kanban-column flex-1 bg-blue-50 rounded-2xl p-3 space-y-3 min-h-[200px]"></div>
                         </div>
-                        <div class="min-w-[320px] flex-1 flex flex-col">
-                            <div class="flex justify-between items-center mb-4 px-2">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Concluído</span>
-                                <span class="bg-green-100 text-green-600 text-[10px] px-2 py-0.5 rounded-full font-bold" id="count-done">0</span>
+                        <div class="min-w-[300px] flex-1 flex flex-col">
+                            <div class="flex justify-between items-center mb-3 px-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <span>Concluído</span>
+                                <span id="count-done" class="bg-green-100 text-green-600 px-2 py-0.5 rounded-full">0</span>
                             </div>
-                            <div id="col-done" data-status="done" class="kanban-column flex-1 bg-green-50 rounded-2xl p-3 space-y-3 min-h-[200px] border-2 border-transparent"></div>
+                            <div id="col-done" data-status="done" class="kanban-column flex-1 bg-green-50 rounded-2xl p-3 space-y-3 min-h-[200px]"></div>
                         </div>
+                    </div>
+                </div>
+
+                <div id="view-gantt" class="tab-content h-full flex flex-col">
+                    <div class="mb-4 flex items-center gap-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black text-slate-400 uppercase">Zoom:</span>
+                            <select id="gantt-zoom" onchange="renderGantt()" class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-xs font-bold outline-none cursor-pointer">
+                                <option value="40">60%</option>
+                                <option value="60" selected>100%</option>
+                                <option value="90">150%</option>
+                            </select>
+                        </div>
+                        <div class="h-4 w-[1px] bg-slate-200"></div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black text-slate-400 uppercase">Responsável:</span>
+                            <select id="gantt-owner-filter" onchange="renderGantt()" class="bg-blue-50 border border-blue-200 rounded px-2 py-1 text-xs font-bold text-blue-700 outline-none cursor-pointer">
+                                <option value="todos">Todos os Colaboradores</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="gantt-wrapper custom-scrollbar overflow-x-auto flex-1 shadow-inner">
+                        <div id="gantt-chart" class="gantt-grid"></div>
                     </div>
                 </div>
             </section>
@@ -129,38 +131,27 @@
     </div>
 
     <div id="modal-new-project" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md p-8 rounded-3xl">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
             <h4 class="text-2xl font-black mb-6">Novo Projeto</h4>
-            <input type="text" id="new-project-name" class="w-full bg-slate-100 p-4 rounded-xl outline-none" placeholder="Nome do Projeto">
-            <div class="flex justify-end gap-3 mt-8">
+            <input type="text" id="new-project-name" class="w-full bg-slate-100 p-4 rounded-xl outline-none mb-6" placeholder="Nome do Projeto">
+            <div class="flex justify-end gap-3">
                 <button onclick="closeModal('modal-new-project')" class="font-bold text-slate-500">Cancelar</button>
                 <button id="btn-save-project" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Criar</button>
             </div>
         </div>
     </div>
 
-    <div id="modal-edit-project" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md p-8 rounded-3xl">
-            <h4 class="text-2xl font-black mb-6">Editar Projeto</h4>
-            <input type="text" id="edit-project-name" class="w-full bg-slate-100 p-4 rounded-xl outline-none">
-            <div class="flex justify-end gap-3 mt-8">
-                <button onclick="closeModal('modal-edit-project')" class="font-bold text-slate-500">Cancelar</button>
-                <button id="btn-update-project" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Salvar</button>
-            </div>
-        </div>
-    </div>
-
     <div id="modal-new-story" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg p-8 rounded-3xl">
-            <h4 class="text-2xl font-black mb-6">Criar História</h4>
+        <div class="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl">
+            <h4 class="text-2xl font-black mb-6">Nova História</h4>
             <div class="space-y-4">
                 <input type="text" id="story-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Título">
                 <select id="story-priority" class="w-full bg-slate-100 p-3 rounded-xl outline-none">
-                    <option value="P1">P1 - Alta</option>
-                    <option value="P2" selected>P2 - Média</option>
-                    <option value="P3">P3 - Baixa</option>
+                    <option value="P1">Alta Prioridade</option>
+                    <option value="P2" selected>Média Prioridade</option>
+                    <option value="P3">Baixa Prioridade</option>
                 </select>
-                <textarea id="story-desc" rows="3" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Descrição..."></textarea>
+                <textarea id="story-desc" rows="3" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Descrição"></textarea>
             </div>
             <div class="flex justify-end gap-3 mt-8">
                 <button onclick="closeModal('modal-new-story')" class="font-bold text-slate-400">Cancelar</button>
@@ -170,13 +161,13 @@
     </div>
 
     <div id="modal-add-task" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md p-8 rounded-3xl">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
             <h4 class="text-xl font-black mb-6">Nova Tarefa</h4>
             <input type="hidden" id="target-story-id">
             <div class="space-y-4">
-                <input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Título da tarefa">
+                <input type="text" id="task-title" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="O que deve ser feito?">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="task-points" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Pontos" value="3">
+                    <input type="number" id="task-points" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Pts" value="3">
                     <input type="text" id="task-owner" class="w-full bg-slate-100 p-3 rounded-xl outline-none" placeholder="Responsável">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -186,7 +177,7 @@
             </div>
             <div class="flex justify-end gap-3 mt-8">
                 <button onclick="closeModal('modal-add-task')" class="font-bold text-slate-400">Cancelar</button>
-                <button id="btn-confirm-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">Confirmar</button>
+                <button id="btn-confirm-task" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">Salvar</button>
             </div>
         </div>
     </div>
@@ -194,7 +185,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, arrayUnion, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+        
         const firebaseConfig = {
             apiKey: "AIzaSyCGQZgIkr2T7DJ880Z0R6Nqi_R4O5zabTw",
             authDomain: "base-scrum.firebaseapp.com",
@@ -203,12 +194,14 @@
             messagingSenderId: "862384072053",
             appId: "1:862384072053:web:922d943b7b95b065381f3c"
         };
-
+        
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         let activeProjectId = null;
+        let projectsList = [];
         let storiesData = [];
+        let allBacklogData = []; 
         let unsubscribeStories = null;
 
         window.openModal = (id) => document.getElementById(id).classList.remove('opacity-0', 'pointer-events-none');
@@ -219,68 +212,47 @@
             document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
             document.getElementById('view-'+v).classList.add('active');
             document.querySelector(`[data-view="${v}"]`).classList.add('active');
+            if(v === 'gantt') renderGantt();
         };
 
-        // --- PROJETOS ---
         onSnapshot(query(collection(db, "projects"), orderBy("createdAt", "desc")), (snap) => {
-            const projects = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            projectsList = snap.docs.map(d => ({id: d.id, ...d.data()}));
             const sel = document.getElementById('project-selector');
-            sel.innerHTML = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            sel.innerHTML = projectsList.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
             
-            if(projects.length > 0) {
-                if(!activeProjectId || !projects.find(p => p.id === activeProjectId)) {
-                    activeProjectId = projects[0].id;
+            if(projectsList.length > 0) {
+                if(!activeProjectId) {
+                    activeProjectId = projectsList[0].id;
                     sel.value = activeProjectId;
                     loadStories();
-                } else {
-                    sel.value = activeProjectId;
-                    const current = projects.find(p => p.id === activeProjectId);
-                    document.getElementById('current-project-title').innerText = current.name;
                 }
-            } else {
-                activeProjectId = null;
-                document.getElementById('current-project-title').innerText = "Crie um projeto";
-                renderBacklog(); renderKanban();
+                document.getElementById('current-project-title').innerText = projectsList.find(p => p.id === activeProjectId)?.name || "";
             }
-
-            sel.onchange = (e) => { activeProjectId = e.target.value; loadStories(); };
         });
 
-        document.getElementById('btn-save-project').onclick = async () => {
-            const name = document.getElementById('new-project-name').value;
-            if(name) {
-                await addDoc(collection(db, "projects"), { name, createdAt: new Date() });
-                closeModal('modal-new-project');
-            }
-        };
+        onSnapshot(collection(db, "backlog"), (snap) => {
+            allBacklogData = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            updateOwnerFilterOptions();
+            if(document.getElementById('view-gantt').classList.contains('active')) renderGantt();
+        });
 
-        window.openEditProjectModal = () => {
-            if(!activeProjectId) return;
-            const sel = document.getElementById('project-selector');
-            document.getElementById('edit-project-name').value = sel.options[sel.selectedIndex].text;
-            openModal('modal-edit-project');
-        };
+        function updateOwnerFilterOptions() {
+            const filter = document.getElementById('gantt-owner-filter');
+            const currentVal = filter.value;
+            const owners = new Set();
+            allBacklogData.forEach(s => (s.tasks || []).forEach(t => { if(t.owner && t.owner !== 'S/D') owners.add(t.owner); }));
+            
+            let options = '<option value="todos">Todos os Colaboradores</option>';
+            Array.from(owners).sort().forEach(o => {
+                options += `<option value="${o}" ${o === currentVal ? 'selected' : ''}>${o}</option>`;
+            });
+            filter.innerHTML = options;
+        }
 
-        document.getElementById('btn-update-project').onclick = async () => {
-            const newName = document.getElementById('edit-project-name').value;
-            if(newName && activeProjectId) {
-                await updateDoc(doc(db, "projects", activeProjectId), { name: newName });
-                closeModal('modal-edit-project');
-            }
-        };
-
-        window.deleteProject = async () => {
-            if(!activeProjectId || !confirm("Apagar projeto?")) return;
-            await deleteDoc(doc(db, "projects", activeProjectId));
-            activeProjectId = null;
-        };
-
-        // --- HISTÓRIAS ---
         function loadStories() {
             if(unsubscribeStories) unsubscribeStories();
             if(!activeProjectId) return;
-            const q = query(collection(db, "backlog"), where("projectId", "==", activeProjectId));
-            unsubscribeStories = onSnapshot(q, (snap) => {
+            unsubscribeStories = onSnapshot(query(collection(db, "backlog"), where("projectId", "==", activeProjectId)), (snap) => {
                 storiesData = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 renderBacklog(); renderKanban();
                 let total = 0;
@@ -289,12 +261,16 @@
             });
         }
 
+        document.getElementById('btn-save-project').onclick = async () => {
+            const name = document.getElementById('new-project-name').value;
+            if(name) { await addDoc(collection(db, "projects"), { name, createdAt: new Date() }); closeModal('modal-new-project'); }
+        };
+
         document.getElementById('btn-create-story').onclick = async () => {
             const title = document.getElementById('story-title').value;
             if(title && activeProjectId) {
                 await addDoc(collection(db, "backlog"), {
-                    projectId: activeProjectId,
-                    title: title,
+                    projectId: activeProjectId, title,
                     priority: document.getElementById('story-priority').value,
                     description: document.getElementById('story-desc').value,
                     tasks: []
@@ -303,126 +279,135 @@
             }
         };
 
-        window.openAddTaskModal = (storyId, storyTitle) => {
-            document.getElementById('target-story-id').value = storyId;
-            openModal('modal-add-task');
-        };
+        window.openAddTaskModal = (id) => { document.getElementById('target-story-id').value = id; openModal('modal-add-task'); };
 
         document.getElementById('btn-confirm-task').onclick = async () => {
-            const storyId = document.getElementById('target-story-id').value;
+            const sId = document.getElementById('target-story-id').value;
             const title = document.getElementById('task-title').value;
-            if(storyId && title) {
-                const newTask = {
-                    id: Date.now().toString(),
-                    title: title,
+            if(sId && title) {
+                const task = {
+                    id: Date.now().toString(), title,
                     points: parseInt(document.getElementById('task-points').value) || 0,
-                    owner: document.getElementById('task-owner').value || 'N/A',
+                    owner: document.getElementById('task-owner').value || 'S/D',
                     startDate: document.getElementById('task-start').value || 'S/D',
                     endDate: document.getElementById('task-end').value || 'S/D',
                     status: 'todo'
                 };
-                await updateDoc(doc(db, "backlog", storyId), { tasks: arrayUnion(newTask) });
+                await updateDoc(doc(db, "backlog", sId), { tasks: arrayUnion(task) });
                 closeModal('modal-add-task');
             }
         };
 
-        // --- ATUALIZAR STATUS ---
-        window.updateTaskStatus = async (storyId, taskIndex, newStatus) => {
-            const story = storiesData.find(s => s.id === storyId);
-            if(story) {
-                const updatedTasks = [...story.tasks];
-                updatedTasks[taskIndex].status = newStatus;
-                await updateDoc(doc(db, "backlog", storyId), { tasks: updatedTasks });
-            }
-        };
-
-        window.deleteStory = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "backlog", id)); };
-
-        // --- RENDERS ---
         function renderBacklog() {
             const container = document.getElementById('backlog-container');
-            if(storiesData.length === 0) { container.innerHTML = `<div class="text-center py-10 text-slate-400">Sem histórias.</div>`; return; }
-            
-            container.innerHTML = storiesData.map(story => {
-                const pClass = story.priority === 'P1' ? 'badge-p1' : (story.priority === 'P2' ? 'badge-p2' : 'badge-p3');
-                return `
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-4">
-                    <div class="p-5 border-b flex justify-between items-center bg-slate-50/30">
-                        <div class="flex gap-3 items-center">
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded ${pClass}">${story.priority}</span>
-                            <h4 class="font-bold text-slate-800">${story.title}</h4>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="openAddTaskModal('${story.id}', '${story.title}')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold">Add Tarefa</button>
-                            <button onclick="deleteStory('${story.id}')" class="text-slate-300 hover:text-red-500 px-2"><i class="fas fa-trash"></i></button>
-                        </div>
+            container.innerHTML = storiesData.map(s => `
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-slate-800">${s.title}</h4>
+                        <button onclick="openAddTaskModal('${s.id}')" class="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-1 rounded-md uppercase">+ Tarefa</button>
                     </div>
-                    <div class="p-4 space-y-2">
-                        ${(story.tasks || []).map((t, idx) => {
-                            const statusColor = t.status === 'done' ? 'status-done' : (t.status === 'doing' ? 'status-doing' : 'status-todo');
-                            return `
-                            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-semibold text-slate-700">${t.title}</span>
-                                    <span class="text-[9px] text-slate-400 font-bold">📅 ${t.startDate} - ${t.endDate}</span>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase">${t.owner}</span>
-                                    <select onchange="updateTaskStatus('${story.id}', ${idx}, this.value)" class="text-[10px] font-bold px-2 py-1 rounded-lg outline-none cursor-pointer ${statusColor}">
-                                        <option value="todo" ${t.status === 'todo' ? 'selected' : ''}>A Fazer</option>
-                                        <option value="doing" ${t.status === 'doing' ? 'selected' : ''}>Em Andamento</option>
-                                        <option value="done" ${t.status === 'done' ? 'selected' : ''}>Concluído</option>
-                                    </select>
-                                    <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded">${t.points} pts</span>
-                                </div>
-                            </div>`;
-                        }).join('')}
+                    <div class="space-y-2">
+                        ${(s.tasks || []).map(t => `<div class="bg-slate-50 p-2 rounded-lg text-xs flex justify-between"><span>${t.title}</span><span class="font-bold text-slate-400">${t.points} pts</span></div>`).join('')}
                     </div>
-                </div>`;
-            }).join('');
+                </div>
+            `).join('');
         }
 
         function renderKanban() {
             const cols = { todo: document.getElementById('col-todo'), doing: document.getElementById('col-doing'), done: document.getElementById('col-done') };
             Object.values(cols).forEach(c => c.innerHTML = '');
             let counts = { todo: 0, doing: 0, done: 0 };
-
-            storiesData.forEach(story => {
-                (story.tasks || []).forEach((task, idx) => {
-                    if(cols[task.status]) {
-                        counts[task.status]++;
-                        const card = document.createElement('div');
-                        card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing mb-3";
-                        card.draggable = true;
-                        card.innerHTML = `<h5 class="text-sm font-bold text-slate-800 mb-2">${task.title}</h5>
-                            <div class="flex justify-between items-center text-[9px] font-bold text-slate-400">
-                                <span>👤 ${task.owner}</span> <span>🏁 ${task.endDate}</span>
-                            </div>`;
-                        card.ondragstart = (e) => { e.dataTransfer.setData("storyId", story.id); e.dataTransfer.setData("taskIdx", idx); };
-                        cols[task.status].appendChild(card);
-                    }
-                });
-            });
-            document.getElementById('count-todo').innerText = counts.todo;
-            document.getElementById('count-doing').innerText = counts.doing;
-            document.getElementById('count-done').innerText = counts.done;
+            storiesData.forEach(s => (s.tasks || []).forEach((t, i) => {
+                counts[t.status]++;
+                const card = document.createElement('div');
+                card.className = "bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-xs cursor-move";
+                card.draggable = true;
+                card.innerHTML = `<p class="font-bold mb-1">${t.title}</p><p class="text-[10px] text-slate-400 font-bold uppercase">${t.owner}</p>`;
+                card.ondragstart = (e) => { e.dataTransfer.setData("sId", s.id); e.dataTransfer.setData("idx", i); };
+                cols[t.status].appendChild(card);
+            }));
+            ['todo','doing','done'].forEach(k => document.getElementById('count-'+k).innerText = counts[k]);
         }
 
-        document.querySelectorAll('.kanban-column').forEach(col => {
-            col.ondragover = (e) => e.preventDefault();
-            col.ondrop = async (e) => {
-                const sId = e.dataTransfer.getData("storyId");
-                const tIdx = parseInt(e.dataTransfer.getData("taskIdx"));
-                const newStatus = col.getAttribute('data-status');
-                const story = storiesData.find(s => s.id === sId);
-                if(story) {
-                    const tasks = [...story.tasks];
-                    tasks[tIdx].status = newStatus;
-                    await updateDoc(doc(db, "backlog", sId), { tasks });
+        window.renderGantt = () => {
+            const container = document.getElementById('gantt-chart');
+            const colWidth = parseInt(document.getElementById('gantt-zoom').value);
+            const selectedOwner = document.getElementById('gantt-owner-filter').value;
+            const projectColWidth = 180;
+            
+            if(!container) return;
+
+            const minDate = new Date("2026-02-18T00:00:00");
+            const maxDate = new Date("2026-03-05T00:00:00");
+            const today = new Date("2026-03-04T00:00:00");
+            
+            const days = [];
+            for(let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) days.push(new Date(d));
+
+            container.style.gridTemplateColumns = `${projectColWidth}px repeat(${days.length}, ${colWidth}px)`;
+
+            let html = `<div class="gantt-header-top" style="grid-column: 2 / 12">fevereiro 2026</div><div class="gantt-header-top" style="grid-column: 12 / -1">março 2026</div>`;
+            html += `<div class="gantt-project-label" style="height: 35px; border-top: 1px solid #e2e8f0; background: #f8fafc">Projeto</div>`;
+            
+            const weekDays = ['dom','seg','ter','qua','qui','sex','sáb'];
+            days.forEach(d => {
+                html += `<div class="gantt-header-day">${weekDays[d.getDay()]}<br><span class="text-slate-800 text-[10px] font-bold">${d.getDate()}</span></div>`;
+            });
+
+            projectsList.forEach(proj => {
+                let projTasks = allBacklogData
+                    .filter(s => s.projectId === proj.id)
+                    .flatMap(s => (s.tasks || []).map(t => ({...t, sTitle: s.title})))
+                    .filter(t => t.startDate !== 'S/D');
+
+                if(selectedOwner !== 'todos') {
+                    projTasks = projTasks.filter(t => t.owner === selectedOwner);
                 }
+
+                if(projTasks.length > 0 || selectedOwner === 'todos') {
+                    html += `<div class="gantt-project-row">
+                        <div class="gantt-project-label">${proj.name}</div>
+                        ${days.map(() => `<div class="gantt-cell"></div>`).join('')}
+                    `;
+
+                    projTasks.forEach((t, i) => {
+                        const start = new Date(t.startDate + 'T00:00:00'), end = new Date(t.endDate + 'T00:00:00');
+                        const startIdx = days.findIndex(d => d.toDateString() === start.toDateString());
+                        const duration = Math.ceil((end - start) / 86400000) + 1;
+                        
+                        if(startIdx !== -1) {
+                            const left = projectColWidth + (startIdx * colWidth) + 5;
+                            const width = (duration * colWidth) - 10;
+                            const topOffset = 45 + (i * 26);
+                            const barColor = proj.name.includes("Produção") ? "#dcfce7" : "#dbeafe";
+                            const textColor = proj.name.includes("Produção") ? "#166534" : "#1e40af";
+
+                            html += `<div class="gantt-bar shadow-sm" title="${t.title} (${t.owner})" style="left:${left}px; width:${width}px; top:${topOffset}px; background:${barColor}; color:${textColor}; font-size: ${colWidth < 50 ? '7px' : '9px'}">
+                                ${colWidth > 45 ? t.title : ''}
+                            </div>`;
+                        }
+                    });
+                    html += `</div>`;
+                }
+            });
+
+            const todayIdx = days.findIndex(d => d.toDateString() === today.toDateString());
+            if(todayIdx !== -1) {
+                const todayLeft = projectColWidth + (todayIdx * colWidth);
+                html += `<div class="today-line" style="left: ${todayLeft}px"></div>`;
+            }
+
+            container.innerHTML = html;
+        };
+
+        document.querySelectorAll('.kanban-column').forEach(col => {
+            col.ondragover = e => e.preventDefault();
+            col.ondrop = async e => {
+                const sId = e.dataTransfer.getData("sId"), idx = parseInt(e.dataTransfer.getData("idx")), status = col.dataset.status;
+                const s = allBacklogData.find(st => st.id === sId);
+                if(s) { const tasks = [...s.tasks]; tasks[idx].status = status; await updateDoc(doc(db, "backlog", sId), { tasks }); }
             };
         });
     </script>
 </body>
 </html>
-
