@@ -72,7 +72,7 @@
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
-                <h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Carregando...</h2>
+                <h2 class="text-xl font-extrabold text-slate-800" id="current-project-title">Selecione um projeto</h2>
                 <div class="text-xs font-bold text-slate-500 uppercase"><span id="total-points">0</span> PTS TOTAL</div>
             </header>
 
@@ -217,15 +217,35 @@
             if(v === 'gantt') renderGantt();
         };
 
+        // --- PROJETOS (CORREÇÃO DE TÍTULO AQUI) ---
         onSnapshot(query(collection(db, "projects"), orderBy("createdAt", "desc")), (snap) => {
             projectsList = snap.docs.map(d => ({id: d.id, ...d.data()}));
             const sel = document.getElementById('project-selector');
             sel.innerHTML = projectsList.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            
             if(projectsList.length > 0) {
-                if(!activeProjectId) { activeProjectId = projectsList[0].id; sel.value = activeProjectId; loadStories(); }
-                document.getElementById('current-project-title').innerText = projectsList.find(p => p.id === activeProjectId)?.name || "";
+                if(!activeProjectId || !projectsList.find(p => p.id === activeProjectId)) {
+                    activeProjectId = projectsList[0].id;
+                    sel.value = activeProjectId;
+                    loadStories();
+                } else {
+                    sel.value = activeProjectId;
+                }
+                // Atualiza o título no carregamento inicial/mudanças no Firestore
+                const current = projectsList.find(p => p.id === activeProjectId);
+                document.getElementById('current-project-title').innerText = current ? current.name : "Selecione um projeto";
+            } else {
+                activeProjectId = null;
+                document.getElementById('current-project-title').innerText = "Crie um projeto";
             }
-            sel.onchange = (e) => { activeProjectId = e.target.value; loadStories(); };
+
+            // Atualiza o título quando o usuário troca no select
+            sel.onchange = (e) => {
+                activeProjectId = e.target.value;
+                const current = projectsList.find(p => p.id === activeProjectId);
+                document.getElementById('current-project-title').innerText = current ? current.name : "";
+                loadStories();
+            };
         });
 
         document.getElementById('btn-save-project').onclick = async () => {
@@ -377,12 +397,9 @@
                 return `<div class="gantt-project-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px); min-height: ${h}px"><div class="gantt-label-col">${proj.name}</div>${days.map(() => `<div class="border-r border-slate-100"></div>`).join('')}<div class="gantt-bars-area">${tasks.map((t, i) => {
                     const start = new Date(t.startDate + 'T00:00:00'), end = new Date(t.endDate + 'T00:00:00'), startIdx = days.findIndex(d => d.toDateString() === start.toDateString()), dur = Math.ceil((end - start) / 86400000) + 1;
                     if(startIdx === -1) return '';
-                    
-                    // Lógica de Cores Dinâmicas conforme o Status
-                    let bgColor = '#f1f5f9', txtColor = '#475569'; // Padrão: A Fazer (Cinza)
-                    if(t.status === 'doing') { bgColor = '#dbeafe'; txtColor = '#2563eb'; } // Fazendo (Azul)
-                    else if(t.status === 'done') { bgColor = '#dcfce7'; txtColor = '#16a34a'; } // OK (Verde)
-
+                    let bgColor = '#f1f5f9', txtColor = '#475569';
+                    if(t.status === 'doing') { bgColor = '#dbeafe'; txtColor = '#2563eb'; }
+                    else if(t.status === 'done') { bgColor = '#dcfce7'; txtColor = '#16a34a'; }
                     return `<div class="gantt-bar shadow-sm" style="left:${startIdx * zoom + 5}px; width:${dur * zoom - 10}px; top:${15 + (i * 32)}px; background:${bgColor}; color:${txtColor}">${zoom > 45 ? t.title : ''}</div>`;
                 }).join('')}</div></div>`;
             }).join('');
