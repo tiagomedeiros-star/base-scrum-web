@@ -47,7 +47,7 @@
                 <i class="fas fa-bolt"></i>
             </div>
             <h2 class="text-2xl font-black text-slate-800 mb-2">Planejamento DEV</h2>
-            <p class="text-sm text-slate-500 mb-8">Faça login para acessar o painel</p>
+            <p class="text-sm text-slate-500 mb-8">Acesso restrito à equipe Queonetics</p>
             
             <button id="btn-login-google" class="w-full bg-white border border-slate-300 text-slate-700 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-sm">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
@@ -160,7 +160,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, arrayUnion, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
-        // NOVOS IMPORTS DE AUTENTICAÇÃO
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -175,25 +174,24 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        // CONFIGURAÇÃO DO AUTH
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
+        
+        // Força a sugestão do Google a usar o domínio da empresa
+        provider.setCustomParameters({
+            hd: 'queonetics.com'
+        });
 
-        // 🚨 SUA LISTA DE ADMINS (Coloque os emails permitidos aqui) 🚨
-        const ALLOWED_EMAILS = [
-            "SEU_EMAIL_AQUI@gmail.com", 
-            "colega1@gmail.com",
-            "colega2@empresa.com"
-        ];
+        // Validação final de domínio
+        const ALLOWED_DOMAIN = "@queonetics.com";
 
         let activeProjectId = null;
         let projectsList = [];
         let storiesData = [];
         let allBacklogData = []; 
         let unsubscribeStories = null;
-        let isAppInitialized = false; // Controla se já carregamos os dados do banco
+        let isAppInitialized = false;
 
-        // FUNÇÕES GLOBAIS DE UI
         window.openModal = (id) => document.getElementById(id).classList.remove('opacity-0', 'pointer-events-none');
         window.closeModal = (id) => document.getElementById(id).classList.add('opacity-0', 'pointer-events-none');
         window.switchView = (v) => {
@@ -205,57 +203,46 @@
         };
 
         // --- SISTEMA DE LOGIN ---
-        
-        // Ouve as mudanças de estado (Logado vs Deslogado)
         onAuthStateChanged(auth, (user) => {
             const loginScreen = document.getElementById('login-screen');
             const appContainer = document.getElementById('app-container');
             const errorMsg = document.getElementById('login-error');
 
             if (user) {
-                // Checa se o email está na lista de admins
-                if (ALLOWED_EMAILS.includes(user.email)) {
-                    // SUCESSO! Esconde login, mostra o app e carrega dados
+                if (user.email && user.email.endsWith(ALLOWED_DOMAIN)) {
                     loginScreen.classList.add('hidden');
                     appContainer.classList.remove('opacity-0', 'pointer-events-none');
                     errorMsg.classList.add('hidden');
-                    initializeAppData(); // Inicia a busca no Firestore
+                    initializeAppData();
                 } else {
-                    // Email não autorizado
-                    errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Conta não autorizada: <b>${user.email}</b><br><span class="font-normal text-[10px]">Peça acesso ao administrador.</span>`;
+                    errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Acesso negado: <b>${user.email}</b><br><span class="font-normal text-[10px]">O acesso é restrito a contas ${ALLOWED_DOMAIN}.</span>`;
                     errorMsg.classList.remove('hidden');
-                    signOut(auth); // Desloga a pessoa imediatamente
+                    signOut(auth); 
                 }
             } else {
-                // DESLOGADO: Mostra tela de login, esconde app
                 loginScreen.classList.remove('hidden');
                 appContainer.classList.add('opacity-0', 'pointer-events-none');
-                isAppInitialized = false; // Reseta o status se o cara deslogar
+                isAppInitialized = false;
             }
         });
 
-        // Clique no botão do Google
         document.getElementById('btn-login-google').onclick = () => {
             const errorMsg = document.getElementById('login-error');
-            errorMsg.classList.add('hidden'); // Limpa erros antigos
+            errorMsg.classList.add('hidden');
             signInWithPopup(auth, provider).catch(error => {
                 console.error("Erro ao logar com Google:", error);
-                errorMsg.innerText = "Falha ao abrir pop-up do Google.";
+                errorMsg.innerText = "Falha ao abrir pop-up do Google. Verifique se os pop-ups estão bloqueados.";
                 errorMsg.classList.remove('hidden');
             });
         };
 
-        // Função de Sair
-        window.logout = () => {
-            signOut(auth);
-        };
+        window.logout = () => signOut(auth);
 
-        // --- INICIALIZAÇÃO DOS DADOS (Só roda após login confirmado) ---
+        // --- INICIALIZAÇÃO DOS DADOS ---
         function initializeAppData() {
-            if (isAppInitialized) return; // Evita carregar duas vezes
+            if (isAppInitialized) return; 
             isAppInitialized = true;
 
-            // Busca os projetos
             onSnapshot(query(collection(db, "projects"), orderBy("createdAt", "desc")), (snap) => {
                 projectsList = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 const sel = document.getElementById('project-selector');
@@ -266,9 +253,7 @@
                         activeProjectId = projectsList[0].id;
                         sel.value = activeProjectId;
                         loadStories();
-                    } else {
-                        sel.value = activeProjectId;
-                    }
+                    } else { sel.value = activeProjectId; }
                     const current = projectsList.find(p => p.id === activeProjectId);
                     document.getElementById('current-project-title').innerText = current ? current.name : "Selecione um projeto";
                 } else {
@@ -284,7 +269,6 @@
                 };
             });
 
-            // Busca todo o backlog para o Gantt
             onSnapshot(collection(db, "backlog"), (snap) => {
                 allBacklogData = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 const filter = document.getElementById('gantt-owner-filter');
@@ -298,7 +282,7 @@
             });
         }
 
-        // --- RESTANTE DAS FUNÇÕES ORIGINAIS ---
+        // --- FUNÇÕES CRUD E GANTT ---
         document.getElementById('btn-save-project').onclick = async () => {
             const name = document.getElementById('new-project-name').value;
             if(name) { await addDoc(collection(db, "projects"), { name, createdAt: new Date() }); closeModal('modal-new-project'); }
@@ -423,11 +407,15 @@
         window.renderGantt = () => {
             const container = document.getElementById('gantt-chart'), zoom = parseInt(document.getElementById('gantt-zoom').value), owner = document.getElementById('gantt-owner-filter').value, lblW = 220;
             if(!container) return;
-            const now = new Date(), min = new Date(now.getFullYear(), now.getMonth(), 1), max = new Date(now.getFullYear(), now.getMonth() + 1, 15), today = new Date(2026, 2, 4);
+            const now = new Date(), min = new Date(now.getFullYear(), now.getMonth(), 1), max = new Date(now.getFullYear(), now.getMonth() + 1, 15), today = new Date();
             const days = []; for(let d = new Date(min); d <= max; d.setDate(d.getDate() + 1)) days.push(new Date(d));
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            document.getElementById('gantt-today-label').innerText = `Hoje: 04 Mar 2026`;
-            let header = `<div class="gantt-header-wrapper"><div class="gantt-header-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px)"><div class="gantt-month-cell">PROJETO</div><div class="gantt-month-cell" style="grid-column: 2 / -1">${monthNames[min.getMonth()].toUpperCase()} / ${monthNames[(min.getMonth()+1)%12].toUpperCase()} 2026</div></div><div class="gantt-header-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px)"><div class="gantt-day-cell"></div>${days.map(d => `<div class="gantt-day-cell">${['dom','seg','ter','qua','qui','sex','sáb'][d.getDay()]}<br><b>${d.getDate()}</b></div>`).join('')}</div></div>`;
+            
+            // Corrige o label do Gantt para mostrar a data real
+            const todayFormatted = today.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+            document.getElementById('gantt-today-label').innerText = `Hoje: ${todayFormatted}`;
+            
+            let header = `<div class="gantt-header-wrapper"><div class="gantt-header-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px)"><div class="gantt-month-cell">PROJETO</div><div class="gantt-month-cell" style="grid-column: 2 / -1">${monthNames[min.getMonth()].toUpperCase()} / ${monthNames[(min.getMonth()+1)%12].toUpperCase()} ${now.getFullYear()}</div></div><div class="gantt-header-row" style="grid-template-columns: ${lblW}px repeat(${days.length}, ${zoom}px)"><div class="gantt-day-cell"></div>${days.map(d => `<div class="gantt-day-cell">${['dom','seg','ter','qua','qui','sex','sáb'][d.getDay()]}<br><b>${d.getDate()}</b></div>`).join('')}</div></div>`;
             let body = projectsList.map(proj => {
                 let tasks = allBacklogData.filter(s => s.projectId === proj.id).flatMap(s => (s.tasks || []).map(t => ({...t})));
                 if(owner !== 'todos') tasks = tasks.filter(t => t.owner === owner);
