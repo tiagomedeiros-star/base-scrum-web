@@ -159,7 +159,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, arrayUnion, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -173,23 +172,25 @@
         
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
         
-        // Força a sugestão do Google a usar o domínio da empresa
+        // Força o pop-up do Google a usar contas do domínio da empresa
         provider.setCustomParameters({
             hd: 'queonetics.com'
         });
 
-        // Validação final de domínio
+        // REGRAS DE ACESSO
         const ALLOWED_DOMAIN = "@queonetics.com";
+        const ADMIN_UID = "xgo6hl2Dp3V8uZDlILxhoNpDtbm2";
 
         let activeProjectId = null;
         let projectsList = [];
         let storiesData = [];
         let allBacklogData = []; 
         let unsubscribeStories = null;
+        let unsubscribeProjects = null;
+        let unsubscribeAllBacklog = null;
         let isAppInitialized = false;
 
         window.openModal = (id) => document.getElementById(id).classList.remove('opacity-0', 'pointer-events-none');
@@ -209,19 +210,25 @@
             const errorMsg = document.getElementById('login-error');
 
             if (user) {
-                if (user.email && user.email.endsWith(ALLOWED_DOMAIN)) {
+                // Libera o acesso se for do domínio @queonetics OU se for o UID de Admin
+                if ((user.email && user.email.endsWith(ALLOWED_DOMAIN)) || user.uid === ADMIN_UID) {
                     loginScreen.classList.add('hidden');
                     appContainer.classList.remove('opacity-0', 'pointer-events-none');
                     errorMsg.classList.add('hidden');
                     initializeAppData();
                 } else {
-                    errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Acesso negado: <b>${user.email}</b><br><span class="font-normal text-[10px]">O acesso é restrito a contas ${ALLOWED_DOMAIN}.</span>`;
+                    errorMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Acesso negado: <b>${user.email}</b><br><span class="font-normal text-[10px]">Acesso restrito à equipe.</span>`;
                     errorMsg.classList.remove('hidden');
                     signOut(auth); 
                 }
             } else {
                 loginScreen.classList.remove('hidden');
                 appContainer.classList.add('opacity-0', 'pointer-events-none');
+                
+                // Limpa os dados se a pessoa deslogar
+                if(unsubscribeProjects) unsubscribeProjects();
+                if(unsubscribeStories) unsubscribeStories();
+                if(unsubscribeAllBacklog) unsubscribeAllBacklog();
                 isAppInitialized = false;
             }
         });
@@ -243,7 +250,7 @@
             if (isAppInitialized) return; 
             isAppInitialized = true;
 
-            onSnapshot(query(collection(db, "projects"), orderBy("createdAt", "desc")), (snap) => {
+            unsubscribeProjects = onSnapshot(query(collection(db, "projects"), orderBy("createdAt", "desc")), (snap) => {
                 projectsList = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 const sel = document.getElementById('project-selector');
                 sel.innerHTML = projectsList.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
@@ -259,6 +266,9 @@
                 } else {
                     activeProjectId = null;
                     document.getElementById('current-project-title').innerText = "Crie um projeto";
+                    renderBacklog();
+                    renderKanban();
+                    renderGantt();
                 }
 
                 sel.onchange = (e) => {
@@ -269,7 +279,7 @@
                 };
             });
 
-            onSnapshot(collection(db, "backlog"), (snap) => {
+            unsubscribeAllBacklog = onSnapshot(collection(db, "backlog"), (snap) => {
                 allBacklogData = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 const filter = document.getElementById('gantt-owner-filter');
                 const val = filter.value;
@@ -303,7 +313,13 @@
 
         function loadStories() {
             if(unsubscribeStories) unsubscribeStories();
-            if(!activeProjectId) return;
+            if(!activeProjectId) {
+                storiesData = [];
+                renderBacklog();
+                renderKanban();
+                document.getElementById('total-points').innerText = '0';
+                return;
+            }
             unsubscribeStories = onSnapshot(query(collection(db, "backlog"), where("projectId", "==", activeProjectId)), (snap) => {
                 storiesData = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 renderBacklog(); renderKanban();
@@ -411,7 +427,6 @@
             const days = []; for(let d = new Date(min); d <= max; d.setDate(d.getDate() + 1)) days.push(new Date(d));
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
             
-            // Corrige o label do Gantt para mostrar a data real
             const todayFormatted = today.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
             document.getElementById('gantt-today-label').innerText = `Hoje: ${todayFormatted}`;
             
